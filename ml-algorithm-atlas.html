@@ -1,0 +1,991 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ML Algorithm Atlas</title>
+<meta name="description" content="An interactive visual framework of 12 machine learning algorithms with live demos, classified by learning style and application domain — by Vishvesh Tendle.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f5f1; --surface:#ffffff; --surface-2:#efede6; --canvas:#fbfaf6; --ink:#16181d; --muted:#5b616e; --line:#dcd9cf;
+  --sup:#2f6fde; --sup-bg:#e4edfc; --uns:#0f9d79; --uns-bg:#ddf4ec; --self:#d9480f; --self-bg:#fdeadf;
+  --tab:#7c5cd6; --cv:#d6336c; --nlp:#1c8fb3; --gen:#d98e04;
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 6px 24px rgba(0,0,0,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111317; --surface:#1a1d23; --surface-2:#22262e; --canvas:#15181d; --ink:#eceef2; --muted:#9aa1ad; --line:#2e333c;
+    --sup:#6ea0ff; --sup-bg:#1d2a44; --uns:#3fd1a8; --uns-bg:#143329; --self:#ff8a50; --self-bg:#3a2216;
+    --tab:#a68cff; --cv:#ff6b9a; --nlp:#4fc3e8; --gen:#ffbf3c; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 28px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111317; --surface:#1a1d23; --surface-2:#22262e; --canvas:#15181d; --ink:#eceef2; --muted:#9aa1ad; --line:#2e333c;
+  --sup:#6ea0ff; --sup-bg:#1d2a44; --uns:#3fd1a8; --uns-bg:#143329; --self:#ff8a50; --self-bg:#3a2216;
+  --tab:#a68cff; --cv:#ff6b9a; --nlp:#4fc3e8; --gen:#ffbf3c; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 28px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;overflow-wrap:anywhere}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+h1,h2,h3{font-family:"Space Grotesk",Inter,sans-serif;line-height:1.15;margin:0}
+a{color:var(--sup)}
+button{font-family:inherit}
+
+/* hero */
+header.hero{position:relative;padding:64px 0 34px;border-bottom:1px solid var(--line);overflow:hidden}
+#heroCanvas{position:absolute;inset:0;width:100%;height:100%;opacity:.55;pointer-events:none}
+.hero .wrap{position:relative}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.hero h1{font-size:clamp(34px,6vw,62px);margin:10px 0 14px;letter-spacing:-.02em}
+.hero h1 span{background:linear-gradient(90deg,var(--sup),var(--uns) 45%,var(--self));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{max-width:720px;color:var(--muted);margin:0}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:18px;font-size:13px;color:var(--muted)}
+.stats{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.stat-tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 16px;min-width:130px;box-shadow:var(--shadow)}
+.stat-tile b{display:block;font:700 28px "Space Grotesk",sans-serif}
+.stat-tile span{font-size:12.5px;color:var(--muted)}
+.jump{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.jump a{font-size:13px;text-decoration:none;color:var(--ink);border:1px solid var(--line);background:var(--surface);padding:6px 12px;border-radius:999px}
+.jump a:hover{border-color:var(--ink)}
+.back-btn{position:absolute;top:16px;left:16px;z-index:5;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 12px;font:500 13px Inter,sans-serif;text-decoration:none}
+.theme-btn{position:absolute;top:16px;right:16px;z-index:5;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 12px;font:500 13px Inter,sans-serif;cursor:pointer}
+
+section{padding:48px 0;border-bottom:1px solid var(--line)}
+section > .wrap > h2{font-size:clamp(24px,3.4vw,32px);margin-bottom:6px}
+.lede{color:var(--muted);margin:0 0 24px;max-width:780px}
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion: reduce){ .reveal{opacity:1;transform:none;transition:none} html{scroll-behavior:auto} }
+
+/* pills & chips */
+.legend{display:flex;flex-wrap:wrap;gap:10px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;padding:4px 10px;border-radius:999px}
+.pill i{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
+.p-sup{background:var(--sup-bg);color:var(--sup)} .p-sup i{background:var(--sup)}
+.p-uns{background:var(--uns-bg);color:var(--uns)} .p-uns i{background:var(--uns)}
+.p-self{background:var(--self-bg);color:var(--self)} .p-self i{background:var(--self)}
+.chip{font-size:12px;font-weight:600;padding:3px 9px;border-radius:6px;border:1.5px solid}
+.d-tab{color:var(--tab);border-color:var(--tab)} .d-cv{color:var(--cv);border-color:var(--cv)}
+.d-nlp{color:var(--nlp);border-color:var(--nlp)} .d-gen{color:var(--gen);border-color:var(--gen)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+
+/* network */
+.net-wrap{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:10px}
+#net{width:100%;height:auto;display:block}
+#net .edge{stroke:var(--line);stroke-width:2;fill:none;transition:opacity .25s,stroke .25s}
+#net .edge.hot{stroke:var(--ink);stroke-width:2.5;stroke-dasharray:6 5;animation:dash 1s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-22}}
+#net .elabel{font:600 12px Inter,sans-serif;fill:var(--ink);opacity:0;transition:opacity .25s;paint-order:stroke;stroke:var(--surface);stroke-width:5px}
+#net .elabel.hot{opacity:1}
+#net .node{cursor:pointer;transition:opacity .25s}
+#net .node circle.ring{fill:var(--surface);stroke-width:3.5}
+#net .node .halo{opacity:0;transition:opacity .25s}
+#net .node:hover .halo,#net .node.hot .halo{opacity:.22}
+#net .node text{font:600 13px Inter,sans-serif;fill:var(--ink)}
+#net.hovering .node:not(.hot){opacity:.25}
+#net.hovering .edge:not(.hot){opacity:.12}
+.ntip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);font-size:13px;line-height:1.4;padding:10px 12px;border-radius:10px;max-width:260px;opacity:0;transform:translateY(4px);transition:opacity .15s,transform .15s;z-index:3}
+.ntip.show{opacity:1;transform:none}
+.ntip b{font-family:"Space Grotesk",sans-serif;font-size:15px;display:block;margin-bottom:2px}
+.net-help{font-size:13px;color:var(--muted);margin-top:12px;display:flex;gap:16px;flex-wrap:wrap}
+
+/* lab */
+.lab{display:grid;grid-template-columns:220px minmax(0,1fr);gap:16px;align-items:start}
+.tabs{display:flex;flex-direction:column;gap:6px}
+.tab{display:flex;align-items:center;gap:9px;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:9px 12px;border-radius:11px;font:600 14px Inter,sans-serif;cursor:pointer;transition:.15s}
+.tab i{width:9px;height:9px;border-radius:50%;flex:none}
+.tab:hover{border-color:var(--muted)}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.stage{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow);min-width:0}
+.stage-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.stage-head h3{font-size:24px;margin:2px 0 8px}
+.num{font:500 12px "JetBrains Mono",monospace;color:var(--muted)}
+.readout{font:500 12.5px/1.6 "JetBrains Mono",monospace;color:var(--muted);text-align:right;min-width:190px}
+.readout b{color:var(--ink)}
+.canvas-box{background:var(--canvas);border:1px solid var(--line);border-radius:14px;overflow:hidden;position:relative}
+#cv{display:block;touch-action:none;cursor:crosshair}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+.cbtn{border:1px solid var(--line);background:var(--surface-2);color:var(--ink);padding:7px 13px;border-radius:9px;font:600 13px Inter,sans-serif;cursor:pointer}
+.cbtn:hover{border-color:var(--muted)}
+.cbtn.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.cslider{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);background:var(--surface-2);border:1px solid var(--line);padding:5px 11px;border-radius:9px}
+.cslider input{accent-color:var(--sup);width:120px}
+.cslider output{font:500 12px "JetBrains Mono",monospace;color:var(--ink);min-width:34px}
+.cseg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;flex-wrap:wrap}
+.cseg button{border:0;background:var(--surface-2);color:var(--ink);padding:7px 11px;font:600 12.5px Inter,sans-serif;cursor:pointer;border-right:1px solid var(--line)}
+.cseg button:last-child{border-right:0}
+.cseg button.on{background:var(--ink);color:var(--bg)}
+.caption{font-size:14px;color:var(--muted);margin:12px 0 0;max-width:820px}
+.caption b{color:var(--ink)}
+
+/* matrix */
+.matrix-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+table.matrix{border-collapse:collapse;width:100%;min-width:640px;font-size:14px}
+.matrix th,.matrix td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:center;transition:background .2s,opacity .2s}
+.matrix th:first-child,.matrix td:first-child{text-align:left}
+.matrix thead th{font:600 12px Inter,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--surface-2)}
+.matrix thead th[data-dom]{cursor:pointer;user-select:none}
+.matrix thead th[data-dom]:hover,.matrix thead th.active{color:var(--ink);text-decoration:underline;text-underline-offset:4px}
+.matrix tbody tr{cursor:pointer}
+.matrix tbody tr:last-child td{border-bottom:0}
+.matrix tbody tr:hover{background:var(--surface-2)}
+.matrix tbody tr.dim{opacity:.28}
+.dot{display:inline-block;width:14px;height:14px;border-radius:50%;transition:transform .3s}
+.dot.full{background:currentColor} .dot.part{border:2.5px solid currentColor;width:13px;height:13px}
+tr:not(.dim) .dot.pop{transform:scale(1.35)}
+.c-tab{color:var(--tab)} .c-cv{color:var(--cv)} .c-nlp{color:var(--nlp)} .c-gen{color:var(--gen)}
+.mkey{display:flex;gap:18px;font-size:13px;color:var(--muted);margin-top:12px;flex-wrap:wrap}
+.mkey span{display:inline-flex;align-items:center;gap:6px}
+
+/* radar */
+.compare{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:22px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:var(--shadow)}
+#radar{width:100%;height:auto;display:block}
+#radar .ring{fill:none;stroke:var(--line)}
+#radar .axis{stroke:var(--line)}
+#radar text{font:600 11.5px Inter,sans-serif;fill:var(--muted)}
+.selects{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.selects label{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
+.selects select{font:500 14px Inter,sans-serif;padding:7px 10px;border-radius:9px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);max-width:100%}
+.swatch{width:12px;height:12px;border-radius:3px;display:inline-block}
+.diffs{font-size:14.5px}
+.diffs ul{margin:6px 0 0;padding-left:18px}
+.diffs li{margin:4px 0}
+.note{font-size:12px;color:var(--muted);margin-top:12px}
+
+/* wizard */
+.wiz{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:var(--shadow)}
+.wsteps{display:flex;gap:6px;margin-bottom:16px}
+.wsteps i{height:5px;flex:1;border-radius:3px;background:var(--line);transition:background .3s}
+.wsteps i.done{background:var(--sup)}
+.wq{font:700 20px "Space Grotesk",sans-serif;margin-bottom:14px}
+.wopts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:10px}
+.wopt{text-align:left;border:1.5px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:14px;padding:14px;cursor:pointer;font:600 15px Inter,sans-serif;transition:.15s}
+.wopt:hover{border-color:var(--sup);transform:translateY(-2px)}
+.wopt small{display:block;font-weight:400;color:var(--muted);font-size:13px;margin-top:3px}
+.wres{display:grid;gap:10px}
+.wcard{display:flex;gap:14px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:var(--surface-2);animation:pop .4s ease both}
+.wcard .rank{font:700 22px "Space Grotesk",sans-serif;color:var(--muted);width:26px;flex:none}
+.wcard .body{flex:1;min-width:0}
+.wcard b{font-family:"Space Grotesk",sans-serif;font-size:17px}
+.wcard p{margin:2px 0 0;font-size:14px;color:var(--muted)}
+@keyframes pop{from{opacity:0;transform:translateY(8px)}}
+.wnav{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+
+/* cards */
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.fbtn{border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:7px 14px;border-radius:999px;font:500 13.5px Inter,sans-serif;cursor:pointer}
+.fbtn.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(320px,100%),1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px;transition:transform .25s,box-shadow .25s,opacity .3s}
+.card:hover{transform:translateY(-3px)}
+.card.hide{display:none}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.card h3{font-size:21px;margin-top:2px}
+.fam{font-size:12.5px;color:var(--muted)}
+.glyph{flex:none;width:58px;height:58px;border-radius:12px;background:var(--surface-2);display:grid;place-items:center}
+.glyph svg{width:40px;height:40px}
+.lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:3px}
+.card p{margin:0;font-size:14.5px}
+.card ul{margin:0;padding-left:18px;font-size:14px}
+.card ul li{margin:2px 0}
+.tip{font-size:13px;background:var(--surface-2);border-radius:10px;padding:9px 11px;color:var(--muted)}
+.tip b{color:var(--ink)}
+.card .run{margin-top:auto;align-self:flex-start}
+
+footer{padding:30px 0 50px;color:var(--muted);font-size:13px}
+footer .refs{margin-top:8px}
+
+@media (max-width:860px){
+  .lab{grid-template-columns:1fr}
+  .tabs{flex-direction:row;overflow-x:auto;padding-bottom:4px}
+  .tab{flex:none}
+  .compare{grid-template-columns:1fr}
+  .readout{text-align:left}
+}
+@media (max-width:420px){ .stage{padding:12px} .card{padding:16px} }
+@media print{ .theme-btn,.lab,.controls,#lab,#chooser{display:none} .reveal{opacity:1;transform:none} }
+</style>
+</head>
+<body>
+<a class="back-btn" href="../index.html">← Portfolio</a>
+<button class="theme-btn" id="themeBtn" aria-label="Toggle dark mode">◐ Theme</button>
+
+<header class="hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <div class="eyebrow">Interactive Portfolio Artifact · Machine Learning Fundamentals</div>
+    <h1>The ML Algorithm <span>Atlas</span></h1>
+    <p>An interactive framework of twelve core machine learning algorithms, from classical tabular models to the transformers and diffusion models behind generative AI. You can see how each one learns, where it is used, and how it relates to the others, and you can run every algorithm live in your browser.</p>
+    <div class="meta"><span>Vishvesh Tendle</span><span>M.S. Artificial Intelligence · Indiana Wesleyan University</span><span>October 2026</span></div>
+    <div class="stats">
+      <div class="stat-tile"><b data-count="12">0</b><span>algorithms</span></div>
+      <div class="stat-tile"><b data-count="12">0</b><span>live demos</span></div>
+      <div class="stat-tile"><b data-count="4">0</b><span>application domains</span></div>
+      <div class="stat-tile"><b data-count="3">0</b><span>learning styles</span></div>
+    </div>
+    <nav class="jump">
+      <a href="#map">1 · Relationship map</a><a href="#lab">2 · Live lab</a><a href="#domains">3 · Domain matrix</a><a href="#compare">4 · Compare</a><a href="#chooser">5 · Algorithm picker</a><a href="#profiles">6 · Profiles</a>
+    </nav>
+  </div>
+</header>
+
+<!-- 1. NETWORK -->
+<section id="map">
+  <div class="wrap reveal">
+    <h2>1 · How the algorithms relate</h2>
+    <p class="lede">Each node is an algorithm, colored by <b>how it learns</b>. The lines connect algorithms that share ideas, architecture, or purpose. <b>Hover</b> over a node to trace its relatives, and <b>click</b> it to run its live demo.</p>
+    <div class="legend" style="margin-bottom:14px">
+      <span class="pill p-sup"><i></i>Supervised: learns from labeled examples</span>
+      <span class="pill p-uns"><i></i>Unsupervised: finds structure without labels</span>
+      <span class="pill p-self"><i></i>Self-supervised: creates its own targets from raw data</span>
+    </div>
+    <div class="net-wrap" id="netWrap">
+      <svg id="net" viewBox="0 0 940 450" role="img" aria-label="Network diagram of algorithm relationships"></svg>
+      <div class="ntip" id="ntip"></div>
+    </div>
+    <div class="net-help"><span><b>Tree → Forest → Boosting:</b> one tree, then many voting trees, then trees that fix each other's errors</span><span><b>BERT ↔ GPT:</b> the same transformer, reading in two directions vs. one</span><span><b>GAN ↔ Diffusion:</b> two routes to generating images</span></div>
+  </div>
+</section>
+
+<!-- 2. LAB -->
+<section id="lab">
+  <div class="wrap reveal">
+    <h2>2 · The live lab: watch each algorithm learn</h2>
+    <p class="lede">Every demo runs the actual idea behind the algorithm in real time. You can drag the sliders, click the chart to add data, and step through training to see why each algorithm behaves the way it does.</p>
+    <div class="lab">
+      <div class="tabs" id="tabs" role="tablist" aria-label="Choose an algorithm"></div>
+      <div class="stage">
+        <div class="stage-head">
+          <div><div class="num" id="labNum"></div><h3 id="labName"></h3><div class="chips" id="labChips"></div></div>
+          <div class="readout" id="labStat"></div>
+        </div>
+        <div class="canvas-box"><canvas id="cv"></canvas></div>
+        <div class="controls" id="labCtl"></div>
+        <p class="caption" id="labCap"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. MATRIX -->
+<section id="domains">
+  <div class="wrap reveal">
+    <h2>3 · Algorithm × application domain</h2>
+    <p class="lede">This table shows where each algorithm does its best work. <b>Click a domain heading</b> to highlight the algorithms built for it, or <b>click a row</b> to open that algorithm in the lab.</p>
+    <div class="matrix-wrap">
+      <table class="matrix" id="matrix">
+        <thead><tr><th>Algorithm</th><th>Learning style</th><th class="c-tab" data-dom="tab">Tabular</th><th class="c-cv" data-dom="cv">Vision</th><th class="c-nlp" data-dom="nlp">NLP</th><th class="c-gen" data-dom="gen">Generative AI</th></tr></thead>
+        <tbody id="matrixBody"></tbody>
+      </table>
+    </div>
+    <div class="mkey"><span><i class="dot full" style="color:var(--muted)"></i>Primary domain</span><span><i class="dot part" style="color:var(--muted)"></i>Secondary or supporting use</span></div>
+  </div>
+</section>
+
+<!-- 4. COMPARE -->
+<section id="compare">
+  <div class="wrap reveal">
+    <h2>4 · Head-to-head comparison</h2>
+    <p class="lede">Pick any two algorithms to compare their trade-offs. The trade-off that matters most in practice is usually <b>interpretability vs. accuracy ceiling</b>.</p>
+    <div class="compare">
+      <svg id="radar" viewBox="0 0 420 400" role="img" aria-label="Radar chart comparing two algorithms"></svg>
+      <div>
+        <div class="selects">
+          <label><span class="swatch" style="background:var(--sup)"></span><select id="selA"></select></label>
+          <label><span class="swatch" style="background:var(--self)"></span><select id="selB"></select></label>
+        </div>
+        <div class="diffs" id="diffs"></div>
+        <div class="note">Ratings run from 1 to 5. They are relative, illustrative judgments based on common practice, not benchmark scores.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. CHOOSER -->
+<section id="chooser">
+  <div class="wrap reveal">
+    <h2>5 · Which algorithm should I use?</h2>
+    <p class="lede">Answer up to four questions to get a ranked shortlist, with the reasoning for each pick.</p>
+    <div class="wiz" id="wiz"></div>
+  </div>
+</section>
+
+<!-- 6. PROFILES -->
+<section id="profiles">
+  <div class="wrap reveal">
+    <h2>6 · Algorithm profiles</h2>
+    <p class="lede">These are the reference cards. Each one gives the algorithm's type, application domains, a plain-language explanation of how it works, and real-world use cases from healthcare, finance, and beyond.</p>
+    <div class="filters" id="filters">
+      <button class="fbtn on" data-f="all">All 12</button>
+      <button class="fbtn" data-f="sup">Supervised</button>
+      <button class="fbtn" data-f="uns">Unsupervised</button>
+      <button class="fbtn" data-f="self">Self-supervised</button>
+      <button class="fbtn" data-f="tab">Tabular</button>
+      <button class="fbtn" data-f="cv">Computer Vision</button>
+      <button class="fbtn" data-f="nlp">NLP</button>
+      <button class="fbtn" data-f="gen">Generative AI</button>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>© 2026 Vishvesh Tendle · Built as a portfolio artifact for the M.S. in Artificial Intelligence, Indiana Wesleyan University. All demos run locally in your browser.</div>
+    <div class="refs">Key references: Breiman (2001) Random Forests · Friedman (2001) Gradient Boosting Machines · Cortes &amp; Vapnik (1995) Support-Vector Networks · Goodfellow et al. (2014) Generative Adversarial Nets · Vaswani et al. (2017) Attention Is All You Need · Devlin et al. (2019) BERT · Ho et al. (2020) Denoising Diffusion Probabilistic Models · Gulshan et al. (2016) deep learning for diabetic retinopathy.</div>
+  </div>
+</footer>
+
+<script>
+/* ================= utilities ================= */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), lerp=(a,b,t)=>a+(b-a)*t;
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function gauss(r){let u=0;while(!u)u=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*r())}
+function el(tag,cls,html){const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e}
+let P={};
+function readPal(){const s=getComputedStyle(document.documentElement);['bg','surface','surface-2','canvas','ink','muted','line','sup','uns','self','tab','cv','nlp','gen'].forEach(k=>P[k.replace('-','')]=s.getPropertyValue('--'+k).trim())}
+function hexRgb(h){h=h.replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');const n=parseInt(h,16);return[n>>16&255,n>>8&255,n&255]}
+function rgba(h,a){const[r,g,b]=hexRgb(h);return`rgba(${r},${g},${b},${a})`}
+readPal();
+const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ================= data ================= */
+const G={
+  line:'<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="30" r="2" fill="currentColor"/><circle cx="15" cy="24" r="2" fill="currentColor"/><circle cx="22" cy="21" r="2" fill="currentColor"/><circle cx="30" cy="12" r="2" fill="currentColor"/><path d="M4 34 L36 8" stroke-dasharray="3 2"/></svg>',
+  tree:'<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2"><rect x="15" y="4" width="10" height="7" rx="2"/><rect x="4" y="18" width="10" height="7" rx="2"/><rect x="26" y="18" width="10" height="7" rx="2"/><path d="M20 11v3H9v4M20 14h11v4"/><path d="M9 25v5M31 25v5"/><circle cx="9" cy="33" r="2.5" fill="currentColor"/><circle cx="31" cy="33" r="2.5" fill="currentColor"/></svg>',
+  forest:'<svg viewBox="0 0 40 40" fill="currentColor"><path d="M8 6l6 11H2z"/><path d="M20 4l7 13H13z"/><path d="M32 6l6 11H26z"/><rect x="7" y="17" width="2" height="6"/><rect x="19" y="17" width="2" height="6"/><rect x="31" y="17" width="2" height="6"/><path d="M8 25l12 8 12-8" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="20" cy="35" r="3"/></svg>',
+  boost:'<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="26" width="7" height="10" rx="1.5"/><rect x="16" y="18" width="7" height="18" rx="1.5"/><rect x="29" y="8" width="7" height="28" rx="1.5"/><path d="M8 20l9-7M21 12l9-7"/><path d="M27 5h4v4"/></svg>',
+  svm:'<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 36L34 4"/><path d="M2 30L28 2M12 38L38 10" stroke-dasharray="2 3"/><circle cx="8" cy="14" r="2.3" fill="currentColor"/><circle cx="13" cy="8" r="2.3" fill="currentColor"/><circle cx="6" cy="22" r="2.3" fill="currentColor"/><circle cx="30" cy="26" r="2.3"/><circle cx="26" cy="33" r="2.3"/><circle cx="34" cy="20" r="2.3"/></svg>',
+  kmeans:'<svg viewBox="0 0 40 40" fill="currentColor"><circle cx="9" cy="11" r="2"/><circle cx="14" cy="8" r="2"/><circle cx="12" cy="15" r="2"/><circle cx="29" cy="10" r="2"/><circle cx="33" cy="14" r="2"/><circle cx="28" cy="16" r="2"/><circle cx="18" cy="30" r="2"/><circle cx="23" cy="33" r="2"/><circle cx="21" cy="27" r="2"/><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="2 2"><circle cx="12" cy="11" r="7.5"/><circle cx="30" cy="13" r="7"/><circle cx="21" cy="30" r="7"/></g></svg>',
+  pca:'<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="20" cy="20" rx="16" ry="7" transform="rotate(-30 20 20)" stroke-dasharray="3 2"/><path d="M8 27L33 13"/><path d="M29 12l4 1-1 4"/><path d="M17 15l5 9" stroke-width="1.6"/></svg>',
+  cnn:'<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="8" width="14" height="24" rx="1.5"/><rect x="6" y="14" width="6" height="6" fill="currentColor" opacity=".35"/><rect x="20" y="12" width="9" height="16" rx="1.5"/><rect x="32" y="16" width="6" height="8" rx="1.5"/><path d="M12 14l8-2M12 20l8 8M29 12l3 4M29 28l3-4"/></svg>',
+  bert:'<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="26" width="7" height="8" rx="1.5"/><rect x="11" y="26" width="7" height="8" rx="1.5"/><rect x="20" y="26" width="7" height="8" rx="1.5" fill="currentColor" opacity=".35"/><rect x="29" y="26" width="7" height="8" rx="1.5"/><path d="M5 26C10 10 30 10 33 26M14 26c3-8 9-8 10 0"/></svg>',
+  gpt:'<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="16" width="7" height="8" rx="1.5"/><rect x="11" y="16" width="7" height="8" rx="1.5"/><rect x="20" y="16" width="7" height="8" rx="1.5"/><rect x="30" y="16" width="8" height="8" rx="1.5" stroke-dasharray="2 2"/><path d="M27 20h3M28 18l2 2-2 2"/></svg>',
+  gan:'<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="20" r="6"/><circle cx="31" cy="20" r="6"/><text x="9" y="23" font-size="8" text-anchor="middle" fill="currentColor" stroke="none" font-family="monospace">G</text><text x="31" y="23" font-size="8" text-anchor="middle" fill="currentColor" stroke="none" font-family="monospace">D</text><path d="M15 16h10M23 14l2 2-2 2M25 24H15M17 22l-2 2 2 2"/></svg>',
+  diff:'<svg viewBox="0 0 40 40"><g fill="currentColor"><rect x="2" y="12" width="2" height="2" opacity=".6"/><rect x="5" y="17" width="2" height="2" opacity=".5"/><rect x="3" y="23" width="2" height="2" opacity=".7"/><rect x="7" y="13" width="2" height="2" opacity=".4"/><rect x="8" y="21" width="2" height="2" opacity=".6"/><rect x="6" y="26" width="2" height="2" opacity=".5"/><rect x="15" y="15" width="3" height="3" opacity=".6"/><rect x="18" y="20" width="3" height="3" opacity=".7"/><rect x="14" y="22" width="3" height="3" opacity=".5"/></g><circle cx="32" cy="20" r="6" fill="currentColor"/><path d="M11 20h2M22 20h3" stroke="currentColor" stroke-width="2"/></svg>'
+};
+
+const ALG=[
+ {id:'linreg',n:'Linear Regression',s:'Linear Reg.',fam:'Classical · Regression',type:'sup',dom:{tab:2},glyph:'line',
+  how:'Fits a straight line (or flat plane) through the data that minimises the squared distance between predictions and actual values. Each feature receives a weight, so the model is fully transparent about how much each input moves the output.',
+  uses:['Forecasting quarterly revenue from marketing spend and seasonality','Estimating hospital length-of-stay from patient admission data','Baseline price model for real estate or insurance premiums'],
+  tip:'<b>Strength:</b> fast and interpretable. <b>Limit:</b> assumes linear relationships.'},
+ {id:'tree',n:'Decision Tree',s:'Decision Tree',fam:'Classical · Classification & regression',type:'sup',dom:{tab:2},glyph:'tree',
+  how:'Asks a sequence of yes/no questions about features ("income > $50k?") and splits the data at each step to make the resulting groups as pure as possible. A new record follows the branches down to a leaf, which holds the prediction.',
+  uses:['Loan approval rules that a credit officer can read and audit','Clinical triage, routing patients by symptoms and vitals','Customer churn rules for a telecom retention team'],
+  tip:'<b>Strength:</b> human-readable logic. <b>Limit:</b> a single tree overfits easily.'},
+ {id:'rf',n:'Random Forest',s:'Random Forest',fam:'Ensemble · Bagging',type:'sup',dom:{tab:2,cv:1},glyph:'forest',
+  how:'Trains many decision trees, each on a random sample of rows and a random subset of features, then lets them vote. The randomness makes the trees disagree in useful ways, so the crowd is more accurate and stable than any single tree.',
+  uses:['Credit-card fraud detection on transaction features','Predicting hospital readmission risk from EHR data','Feature-importance ranking during exploratory analysis'],
+  tip:'<b>Strength:</b> robust with little tuning. <b>Limit:</b> less interpretable than one tree.'},
+ {id:'gbm',n:'Gradient Boosting (XGBoost / LightGBM)',s:'Grad. Boosting',fam:'Ensemble · Boosting',type:'sup',dom:{tab:2},glyph:'boost',
+  how:'Builds small trees one after another; each new tree is trained on the errors (residuals) the previous trees left behind. Adding these corrections step by step produces a very strong model and is often the top performer on structured, tabular data.',
+  uses:['Credit-default and probability-of-default scoring','Demand and inventory forecasting in retail','Ranking search results and recommendations'],
+  tip:'<b>Strength:</b> state-of-the-art on tabular data. <b>Limit:</b> needs careful tuning to avoid overfitting.'},
+ {id:'svm',n:'Support Vector Machine',s:'SVM',fam:'Classical · Classification',type:'sup',dom:{tab:2,nlp:1,cv:1},glyph:'svm',
+  how:'Finds the boundary that separates two classes with the widest possible margin, defined only by the hardest-to-classify points (the "support vectors"). A kernel trick lets it draw curved boundaries by implicitly mapping data into higher dimensions.',
+  uses:['Spam and text classification on TF-IDF features','Cancer classification from gene-expression data','Handwritten-digit recognition (a classic pre-deep-learning benchmark)'],
+  tip:'<b>Strength:</b> excellent with many features and few samples. <b>Limit:</b> slow on very large datasets.'},
+ {id:'kmeans',n:'K-Means Clustering',s:'K-Means',fam:'Unsupervised · Clustering',type:'uns',dom:{tab:2,cv:1},glyph:'kmeans',
+  how:'Places K centre points, assigns every record to its nearest centre, moves each centre to the average of its assigned records, and repeats until the groups stop changing. The result is K clusters of similar records, with no labels needed.',
+  uses:['Customer segmentation for targeted marketing','Grouping patients by utilisation patterns for care programs','Colour quantisation and image compression'],
+  tip:'<b>Strength:</b> simple and scalable. <b>Limit:</b> K must be chosen; assumes round clusters.'},
+ {id:'pca',n:'Principal Component Analysis',s:'PCA',fam:'Unsupervised · Dimensionality reduction',type:'uns',dom:{tab:2,cv:1},glyph:'pca',
+  how:'Rotates the data to find new axes ("principal components") that capture the most variance, then keeps only the top few. Dozens of correlated columns are compressed into a handful of uncorrelated ones while preserving most of the information.',
+  uses:['Reducing hundreds of correlated market indicators into a few risk factors','Visualising high-dimensional data in 2-D','"Eigenfaces" for early face recognition; noise reduction before modelling'],
+  tip:'<b>Strength:</b> removes redundancy, speeds up models. <b>Limit:</b> components are hard to name.'},
+ {id:'cnn',n:'Convolutional Neural Network',s:'CNN',fam:'Deep learning · Vision',type:'sup',dom:{cv:2,gen:1},glyph:'cnn',
+  how:'Slides small learned filters across an image to detect local patterns, starting with edges, then textures, shapes, and finally whole objects, layer by layer. Pooling layers shrink the image so deeper layers see larger regions, and a final layer outputs the class.',
+  uses:['Detecting diabetic retinopathy in retinal photographs (Gulshan et al., 2016)','Object detection for autonomous vehicles and warehouse robots','Reading cheques and scanned documents (OCR)'],
+  tip:'<b>Strength:</b> learns visual features automatically. <b>Limit:</b> needs lots of labeled images and GPU compute.'},
+ {id:'bert',n:'BERT',s:'BERT',fam:'Transformer · Encoder',type:'self',dom:{nlp:2},glyph:'bert',
+  how:'A transformer encoder pre-trained by hiding random words in sentences and learning to predict them from the words on both sides. Self-attention lets every word look at every other word, building rich contextual meaning. It is then fine-tuned (supervised) on a smaller labeled task.',
+  uses:['Sentiment analysis of earnings calls and product reviews','Classifying and routing customer-support tickets','Extracting entities (drugs, dosages) from clinical notes'],
+  tip:'<b>Type note:</b> self-supervised pre-training + supervised fine-tuning.'},
+ {id:'gpt',n:'GPT (Generative Pre-trained Transformer)',s:'GPT',fam:'Transformer · Decoder',type:'self',dom:{nlp:2,gen:2},glyph:'gpt',
+  how:'A transformer decoder trained on vast amounts of text to predict the next token given everything before it. By generating one token at a time, it can write, summarise, translate and answer questions. Instruction tuning and human feedback align it to follow requests.',
+  uses:['Drafting reports, emails and code; conversational assistants','Summarising long financial filings or medical records','Retrieval-augmented question answering over company documents'],
+  tip:'<b>Type note:</b> self-supervised (the next word is the label). <b>Limit:</b> can hallucinate.'},
+ {id:'gan',n:'Generative Adversarial Network',s:'GAN',fam:'Deep generative · Adversarial',type:'uns',dom:{cv:2,gen:2,tab:1},glyph:'gan',
+  how:'Two networks compete. A Generator creates fake samples from random noise, while a Discriminator tries to tell the fakes from real data. Each improves by beating the other, until the generator\'s output is indistinguishable from real examples.',
+  uses:['Generating synthetic patient or transaction data that protects privacy','Image super-resolution and photo enhancement','Data augmentation for rare classes (e.g., rare fraud patterns)'],
+  tip:'<b>Strength:</b> sharp, realistic output. <b>Limit:</b> unstable, tricky to train.'},
+ {id:'diff',n:'Diffusion Model (Stable Diffusion)',s:'Diffusion',fam:'Deep generative · Denoising',type:'self',dom:{cv:2,gen:2},glyph:'diff',
+  how:'During training, images are gradually corrupted with noise and a network learns to reverse each small step. To generate, it starts from pure noise and removes it step by step, guided by a text prompt, until a coherent image emerges.',
+  uses:['Text-to-image generation for marketing and design concepts','Image inpainting, editing and upscaling','Generating synthetic medical images for training data'],
+  tip:'<b>Strength:</b> high quality, stable training. <b>Limit:</b> many steps make generation slower.'}
+];
+const BY=Object.fromEntries(ALG.map(a=>[a.id,a]));
+const typeInfo={sup:['p-sup','Supervised','sup'],uns:['p-uns','Unsupervised','uns'],self:['p-self','Self-supervised','self']};
+const domInfo={tab:['d-tab','Tabular Data'],cv:['d-cv','Computer Vision'],nlp:['d-nlp','NLP'],gen:['d-gen','Generative AI']};
+const pillHTML=a=>`<span class="pill ${typeInfo[a.type][0]}"><i></i>${typeInfo[a.type][1]}</span>`;
+const domChips=a=>Object.entries(a.dom).sort((x,y)=>y[1]-x[1]).map(([d,v])=>`<span class="chip ${domInfo[d][0]}" ${v===1?'style="border-style:dashed"':''}>${domInfo[d][1]}${v===1?' (secondary)':''}</span>`).join('');
+
+/* ================= hero background ================= */
+(function hero(){
+  const cv=$('#heroCanvas'),ctx=cv.getContext('2d');let w,h,pts=[],t0=performance.now();
+  const r=mulberry32(42);
+  function size(){const d=devicePixelRatio||1;w=cv.clientWidth;h=cv.clientHeight;cv.width=w*d;cv.height=h*d;ctx.setTransform(d,0,0,d,0,0)}
+  size();addEventListener('resize',size);
+  for(let i=0;i<70;i++)pts.push({x:r(),y:r(),vx:(r()-.5)*.0006,vy:(r()-.5)*.0006,c:i%3});
+  const centers=[[.72,.3],[.86,.62],[.6,.7]];
+  function draw(t){
+    const phase=((t-t0)/7000)%2, pull=phase<1?Math.sin(phase*Math.PI):0;
+    const cols=[P.sup,P.uns,P.self];ctx.clearRect(0,0,w,h);
+    for(const p of pts){const c=centers[p.c];p.vx+=(c[0]-p.x)*.00004*pull;p.vy+=(c[1]-p.y)*.00004*pull;p.vx*=.985;p.vy*=.985;p.vx+=(Math.random()-.5)*.00003;p.vy+=(Math.random()-.5)*.00003;p.x+=p.vx*16;p.y+=p.vy*16;if(p.x<0||p.x>1)p.vx*=-1;if(p.y<0||p.y>1)p.vy*=-1}
+    ctx.lineWidth=1;
+    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const a=pts[i],b=pts[j],dx=(a.x-b.x)*w,dy=(a.y-b.y)*h,d=Math.hypot(dx,dy);if(d<90){ctx.strokeStyle=rgba(P.muted,.18*(1-d/90));ctx.beginPath();ctx.moveTo(a.x*w,a.y*h);ctx.lineTo(b.x*w,b.y*h);ctx.stroke()}}
+    for(const p of pts){ctx.beginPath();ctx.arc(p.x*w,p.y*h,3,0,7);ctx.fillStyle=rgba(cols[p.c],.8);ctx.fill()}
+  }
+  if(reduceMotion){draw(t0)}else{let vis=true;new IntersectionObserver(e=>vis=e[0].isIntersecting).observe(cv);(function loop(t){requestAnimationFrame(loop);if(vis&&!document.hidden)draw(t)})(t0)}
+})();
+// counters
+$$('[data-count]').forEach(e=>{const n=+e.dataset.count;let s=null;const go=t=>{if(!s)s=t;const k=Math.min(1,(t-s)/1100);e.textContent=Math.round(n*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(go)};reduceMotion?e.textContent=n:requestAnimationFrame(go)});
+
+/* ================= network ================= */
+const NPOS={linreg:[105,85],svm:[105,235],tree:[270,160],rf:[430,80],gbm:[430,240],kmeans:[110,380],pca:[300,345],cnn:[540,350],bert:[640,105],gpt:[810,130],gan:[700,390],diff:[850,290]};
+const EDGES=[['tree','rf','bagging'],['tree','gbm','boosting'],['rf','gbm','tree ensembles'],['linreg','svm','linear boundaries'],['linreg','gbm','fit to residuals'],['linreg','pca','linear algebra'],['kmeans','pca','unsupervised prep'],['pca','cnn','feature extraction'],['svm','bert','text classification'],['bert','gpt','transformer family'],['cnn','gan','conv. generator'],['cnn','diff','U-Net denoiser'],['gan','diff','image generation'],['gpt','diff','text-guided images']];
+(function network(){
+  const svg=$('#net'),tip=$('#ntip'),wrap=$('#netWrap');const NS='http://www.w3.org/2000/svg';
+  let html='<g id="edges">';
+  EDGES.forEach(([a,b,l],i)=>{html+=`<line class="edge" data-a="${a}" data-b="${b}" id="e${i}"/><text class="elabel" id="l${i}" text-anchor="middle">${l}</text>`});
+  html+='</g>';
+  ALG.forEach(a=>{const col=`var(--${a.type})`;html+=`<g class="node" data-id="${a.id}" tabindex="0" role="button" aria-label="${a.n}"><circle class="halo" r="40" fill="${col}"/><circle class="ring" r="28" stroke="${col}"/><g style="color:${col}">${G[a.glyph].replace('<svg ','<svg x="-15" y="-15" width="30" height="30" ')}</g><text y="48" text-anchor="middle">${a.s}</text></g>`});
+  svg.innerHTML=html;
+  const nodes=$$('#net .node'),edges=$$('#net .edge'),labels=$$('#net .elabel');
+  const phase=Object.fromEntries(ALG.map((a,i)=>[a.id,i*1.7]));const cur={};
+  function place(t){
+    for(const a of ALG){const[x,y]=NPOS[a.id];const k=reduceMotion?0:1;cur[a.id]=[x+Math.sin(t/1400+phase[a.id])*4*k,y+Math.cos(t/1700+phase[a.id])*4*k]}
+    nodes.forEach(n=>{const[x,y]=cur[n.dataset.id];n.setAttribute('transform',`translate(${x.toFixed(1)},${y.toFixed(1)})`)});
+    EDGES.forEach(([a,b],i)=>{const[x1,y1]=cur[a],[x2,y2]=cur[b];const e=edges[i];e.setAttribute('x1',x1);e.setAttribute('y1',y1);e.setAttribute('x2',x2);e.setAttribute('y2',y2);labels[i].setAttribute('x',(x1+x2)/2);labels[i].setAttribute('y',(y1+y2)/2-6)});
+  }
+  place(0);let vis=true;new IntersectionObserver(e=>vis=e[0].isIntersecting).observe(svg);
+  if(!reduceMotion)(function loop(t){requestAnimationFrame(loop);if(vis&&!document.hidden)place(t)})(0);
+  function hot(id,on){
+    svg.classList.toggle('hovering',on);nodes.forEach(n=>n.classList.remove('hot'));edges.forEach(e=>e.classList.remove('hot'));labels.forEach(l=>l.classList.remove('hot'));
+    if(!on){tip.classList.remove('show');return}
+    const rel=new Set([id]);EDGES.forEach(([a,b],i)=>{if(a===id||b===id){rel.add(a);rel.add(b);edges[i].classList.add('hot');labels[i].classList.add('hot')}});
+    nodes.forEach(n=>{if(rel.has(n.dataset.id))n.classList.add('hot')});
+    const a=BY[id];tip.innerHTML=`<b>${a.n}</b>${typeInfo[a.type][1]} · ${Object.keys(a.dom).map(d=>domInfo[d][1]).join(', ')}<br><span style="opacity:.8">${a.how.split('. ')[0]}.</span><br><span style="opacity:.7;font-size:12px">Click to run the live demo →</span>`;
+    const nb=nodes.find(n=>n.dataset.id===id).getBoundingClientRect(),wb=wrap.getBoundingClientRect();
+    let left=nb.left-wb.left+nb.width/2+20, top=nb.top-wb.top-10;
+    if(left+270>wb.width)left=nb.left-wb.left-275;if(left<6)left=6;if(top+150>wb.height)top=wb.height-150;
+    tip.style.left=left+'px';tip.style.top=Math.max(6,top)+'px';tip.classList.add('show');
+  }
+  nodes.forEach(n=>{const id=n.dataset.id;
+    n.addEventListener('mouseenter',()=>hot(id,true));n.addEventListener('mouseleave',()=>hot(id,false));
+    n.addEventListener('focus',()=>hot(id,true));n.addEventListener('blur',()=>hot(id,false));
+    n.addEventListener('click',()=>{hot(id,false);openDemo(id,true)});
+    n.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openDemo(id,true)}});
+  });
+})();
+
+/* ================= lab engine ================= */
+const cv=$('#cv'),ctl=$('#labCtl'),statEl=$('#labStat'),capEl=$('#labCap');
+let cur=null,curId=null,last=0,labVisible=true,lastStat='';
+function mapper(w,h,pad=24,top){const x0=pad,y0=top??pad,pw=w-2*pad,ph=h-y0-pad;return{x0,y0,pw,ph,X:u=>x0+u*pw,Y:v=>y0+(1-v)*ph,U:x=>(x-x0)/pw,V:y=>1-(y-y0)/ph}}
+function dot(c,x,y,r,fill,stroke){c.beginPath();c.arc(x,y,r,0,7);c.fillStyle=fill;c.fill();if(stroke){c.lineWidth=1.5;c.strokeStyle=stroke;c.stroke()}}
+function txt(c,s,x,y,o={}){c.font=`${o.weight||500} ${o.size||12}px Inter, sans-serif`;c.fillStyle=o.color||P.muted;c.textAlign=o.align||'left';c.textBaseline=o.base||'alphabetic';c.fillText(s,x,y)}
+function rrect(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+function cellRect(c,M,i,j,cw,ch){const x=Math.round(M.x0+i*cw),y=Math.round(M.y0+j*ch);c.fillRect(x,y,Math.round(M.x0+(i+1)*cw)-x,Math.round(M.y0+(j+1)*ch)-y)}
+function grid(c,M){c.strokeStyle=P.line;c.lineWidth=1;for(let i=0;i<=4;i++){const u=i/4;c.beginPath();c.moveTo(M.X(u),M.Y(0));c.lineTo(M.X(u),M.Y(1));c.moveTo(M.X(0),M.Y(u));c.lineTo(M.X(1),M.Y(u));c.stroke()}}
+function spark(c,arr,x,y,w,h,label,color){rrect(c,x,y,w,h,8);c.fillStyle=rgba(P.surface,.92);c.fill();c.strokeStyle=P.line;c.stroke();txt(c,label,x+8,y+14,{size:10.5,weight:600});if(arr.length<2)return;const mx=Math.max(...arr)||1;c.beginPath();arr.forEach((v,i)=>{const px=x+8+i/(arr.length-1)*(w-16),py=y+h-8-(v/mx)*(h-26);i?c.lineTo(px,py):c.moveTo(px,py)});c.strokeStyle=color;c.lineWidth=2;c.stroke()}
+const clsCol=c=>c?P.self:P.sup;
+
+function makeStage(w,h){
+  ctl.innerHTML='';capEl.innerHTML='';lastStat='';statEl.innerHTML='';
+  const d=devicePixelRatio||1;cv.style.width=w+'px';cv.style.height=h+'px';cv.width=Math.round(w*d);cv.height=Math.round(h*d);
+  const ctx=cv.getContext('2d');ctx.setTransform(d,0,0,d,0,0);
+  const S={ctx,w,h,
+    clear(){ctx.clearRect(0,0,w,h)},
+    btn(label,fn){const b=el('button','cbtn',label);b.type='button';b.onclick=()=>fn(b);ctl.append(b);return b},
+    toggle(off,on,fn){let st=false;const b=S.btn(off,()=>{st=!st;b.set(st);fn(st)});b.set=v=>{st=v;b.textContent=v?on:off;b.classList.toggle('on',v)};return b},
+    slider(label,min,max,step,val,fn,fmt=v=>v){const wr=el('label','cslider',`<span>${label}</span><input type="range" min="${min}" max="${max}" step="${step}" value="${val}"><output>${fmt(+val)}</output>`);const inp=wr.querySelector('input'),out=wr.querySelector('output');inp.oninput=()=>{out.textContent=fmt(+inp.value);fn(+inp.value)};ctl.append(wr);return{set(v){inp.value=v;out.textContent=fmt(+v)}}},
+    seg(opts,val,fn){const g=el('div','cseg');opts.forEach(o=>{const b=el('button',o===val?'on':'',o);b.type='button';b.onclick=()=>{g.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));fn(o)};g.append(b)});ctl.append(g);return g},
+    stat(html){if(html!==lastStat){statEl.innerHTML=html;lastStat=html}},
+    cap(html){capEl.innerHTML=html}
+  };
+  return S;
+}
+function openDemo(id,scroll){
+  curId=id;const a=BY[id],i=ALG.indexOf(a);
+  $$('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.id===id));
+  $('#labNum').textContent=String(i+1).padStart(2,'0')+' / 12 · '+a.fam;
+  $('#labName').textContent=a.n;$('#labChips').innerHTML=pillHTML(a)+domChips(a);
+  const w=cv.parentElement.clientWidth,h=w<560?(id==='cnn'?460:330):390;
+  cur=D[id](makeStage(w,h));last=performance.now();
+  if(scroll)$('#lab').scrollIntoView({behavior:reduceMotion?'auto':'smooth',block:'start'});
+}
+(function loop(t){requestAnimationFrame(loop);if(!cur||!labVisible||document.hidden){last=t;return}const dt=Math.min(50,t-last);last=t;cur.frame(dt,t)})(0);
+new IntersectionObserver(e=>labVisible=e[0].isIntersecting).observe(cv);
+// pointer
+(function(){let down=null,moved=false;const pos=e=>{const b=cv.getBoundingClientRect();return[e.clientX-b.left,e.clientY-b.top]};
+  cv.addEventListener('pointerdown',e=>{const[x,y]=pos(e);down=[x,y];moved=false;cv.setPointerCapture(e.pointerId);cur&&cur.down&&cur.down(x,y)});
+  cv.addEventListener('pointermove',e=>{const[x,y]=pos(e);if(down){if(Math.hypot(x-down[0],y-down[1])>4)moved=true;cur&&cur.drag&&cur.drag(x,y,e.movementX,e.movementY)}else cur&&cur.move&&cur.move(x,y)});
+  cv.addEventListener('pointerup',e=>{const[x,y]=pos(e);if(down&&!moved)cur&&cur.click&&cur.click(x,y);down=null;cur&&cur.up&&cur.up()});
+  cv.addEventListener('pointerleave',()=>{cur&&cur.leave&&cur.leave()});
+})();
+let rw=innerWidth;addEventListener('resize',()=>{clearTimeout(window._rz);window._rz=setTimeout(()=>{if(innerWidth!==rw){rw=innerWidth;openDemo(curId)}},250)});
+
+/* ---------- shared ML helpers ---------- */
+function xorData(r,n=84,noise=0){const C=[[.27,.28,0],[.73,.72,0],[.27,.72,1],[.73,.28,1]];const p=[];for(let i=0;i<n;i++){const c=C[i%4];let k=c[2];if(r()<noise)k=1-k;p.push({x:[clamp(c[0]+gauss(r)*.1,.02,.98),clamp(c[1]+gauss(r)*.1,.02,.98)],c:k})}return p}
+function buildTree(pts,maxD,o={},d=0){
+  const cnt=[0,0];for(const p of pts)cnt[p.c]++;const n=pts.length;const node={d,n,prob:n?cnt[1]/n:.5};
+  if(d>=maxD||n<4||!cnt[0]||!cnt[1]){node.leaf=true;return node}
+  const feats=o.randFeat?[o.r()<.5?0:1]:[0,1];let best=null;
+  for(const f of feats){const s=pts.slice().sort((a,b)=>a.x[f]-b.x[f]);const l=[0,0];
+    for(let i=0;i<n-1;i++){l[s[i].c]++;if(s[i].x[f]===s[i+1].x[f])continue;const nl=i+1,nr=n-nl,r0=cnt[0]-l[0],r1=cnt[1]-l[1];
+      const g=nl*(1-(l[0]/nl)**2-(l[1]/nl)**2)+nr*(1-(r0/nr)**2-(r1/nr)**2);if(!best||g<best.g)best={g,f,t:(s[i].x[f]+s[i+1].x[f])/2}}}
+  if(!best){node.leaf=true;return node}
+  node.f=best.f;node.t=best.t;
+  node.l=buildTree(pts.filter(p=>p.x[best.f]<best.t),maxD,o,d+1);node.r=buildTree(pts.filter(p=>p.x[best.f]>=best.t),maxD,o,d+1);return node}
+function treeProb(n,x){while(!n.leaf)n=x[n.f]<n.t?n.l:n.r;return n.prob}
+function treeDepth(n){return n.leaf?0:1+Math.max(treeDepth(n.l),treeDepth(n.r))}
+function nLeaves(n){return n.leaf?1:nLeaves(n.l)+nLeaves(n.r)}
+function regTree(xs,rs,idx,d){const m=idx.reduce((s,i)=>s+rs[i],0)/idx.length;if(d===0||idx.length<6)return{v:m};
+  const s=[...idx].sort((a,b)=>xs[a]-xs[b]);let tot=0;for(const i of s)tot+=rs[i];let best=null,ls=0;
+  for(let k=0;k<s.length-1;k++){ls+=rs[s[k]];const nl=k+1,nr=s.length-nl;if(nl<3||nr<3)continue;const g=ls*ls/nl+(tot-ls)**2/nr;if(!best||g>best.g)best={g,t:(xs[s[k]]+xs[s[k+1]])/2}}
+  if(!best)return{v:m};return{t:best.t,l:regTree(xs,rs,idx.filter(i=>xs[i]<best.t),d-1),r:regTree(xs,rs,idx.filter(i=>xs[i]>=best.t),d-1)}}
+function predReg(n,x){while(n.t!==undefined)n=x<n.t?n.l:n.r;return n.v}
+
+/* ================= demos ================= */
+const D={};
+
+/* ---- Linear regression ---- */
+D.linreg=S=>{
+  const r=mulberry32(11);let pts=[],m=0,b=.5,lr=.4,step=0,hist=[];const M=mapper(S.w,S.h,28);
+  const data=()=>{pts=[];const m0=.3+r()*.5,b0=.08+r()*.2;for(let i=0;i<26;i++){const x=.04+r()*.92;pts.push([x,clamp(b0+m0*x+gauss(r)*.07,.02,.98)])}};
+  const reset=()=>{m=0;b=.5;step=0;hist=[]};data();
+  S.btn('↺ Reset line',reset);S.btn('New data',()=>{data();reset()});
+  S.slider('Learning rate',.02,.7,.02,lr,v=>lr=v,v=>v.toFixed(2));
+  S.cap('Gradient descent nudges the slope and intercept a little each step to shrink the squared errors (the dashed residuals). The loss curve in the corner shows the error falling. <b>Click the chart to add a point</b>, such as an outlier, and watch the line react.');
+  return{frame(){
+    for(let k=0;k<2;k++){let dm=0,db=0;for(const[x,y]of pts){const e=m*x+b-y;dm+=e*x;db+=e}m-=lr*2*dm/pts.length;b-=lr*2*db/pts.length;step++}
+    const mse=pts.reduce((s,[x,y])=>s+(m*x+b-y)**2,0)/pts.length;if(step%2===0){hist.push(mse);if(hist.length>150)hist.shift()}
+    const c=S.ctx;S.clear();grid(c,M);
+    c.setLineDash([3,3]);c.strokeStyle=rgba(P.self,.6);c.lineWidth=1.2;for(const[x,y]of pts){c.beginPath();c.moveTo(M.X(x),M.Y(y));c.lineTo(M.X(x),M.Y(m*x+b));c.stroke()}c.setLineDash([]);
+    c.save();c.beginPath();c.rect(M.x0,M.y0,M.pw,M.ph);c.clip();c.strokeStyle=P.sup;c.lineWidth=3.5;c.beginPath();c.moveTo(M.X(0),M.Y(b));c.lineTo(M.X(1),M.Y(m+b));c.stroke();c.restore();
+    for(const[x,y]of pts)dot(c,M.X(x),M.Y(y),4.5,P.ink,P.canvas);
+    spark(c,hist,S.w-176,12,164,62,'MSE loss ↓',P.self);
+    txt(c,'feature x →',S.w-30,S.h-8,{align:'right',size:11});txt(c,'target y',32,20,{size:11});
+    S.stat(`ŷ = <b>${m.toFixed(2)}</b>·x + <b>${b.toFixed(2)}</b><br>MSE <b>${mse.toFixed(4)}</b> · step ${step}`);
+  },click(x,y){pts.push([clamp(M.U(x),0,1),clamp(M.V(y),0,1)])}};
+};
+
+/* ---- Decision tree ---- */
+D.tree=S=>{
+  const r=mulberry32(5);let pts=xorData(r,80,.05),depth=3,tree,anim=0,addC=0,lay;
+  const side=S.w>640,PW=side?Math.round(S.w*.58):S.w;const M=mapper(PW,S.h,22);
+  const layout=root=>{let k=0;const out=[];(function go(n,par){n.par=par;if(n.leaf)n.lx=k++;else{go(n.l,n);go(n.r,n);n.lx=(n.l.lx+n.r.lx)/2}out.push(n)})(root,null);return{nodes:out,k,depth:treeDepth(root)}};
+  const rebuild=()=>{tree=buildTree(pts,depth);lay=layout(tree);anim=0};rebuild();
+  S.slider('Max depth',1,7,1,depth,v=>{depth=v;rebuild()});
+  const cb=S.btn('Click adds: ● class A',()=>{addC=1-addC;cb.textContent='Click adds: ● class '+(addC?'B':'A');cb.style.color=addC?P.self:P.sup});cb.style.color=P.sup;
+  S.btn('New data',()=>{pts=xorData(r,80,.05);rebuild()});
+  S.cap('The tree repeatedly picks the single yes/no question (a vertical or horizontal cut) that best separates the two classes. You can watch the regions split and the tree grow on the right. <b>Raise the depth</b> to see it start carving tiny boxes around noisy points, which is what overfitting looks like.');
+  function regions(c,n,b,s){if(n.leaf||n.d>=s){const col=clsCol(n.prob>=.5);c.fillStyle=rgba(col,.07+.24*Math.abs(n.prob-.5)*2);c.fillRect(M.X(b[0]),M.Y(b[3]),M.X(b[1])-M.X(b[0]),M.Y(b[2])-M.Y(b[3]));return}
+    if(n.f===0){regions(c,n.l,[b[0],n.t,b[2],b[3]],s);regions(c,n.r,[n.t,b[1],b[2],b[3]],s)}else{regions(c,n.l,[b[0],b[1],b[2],n.t],s);regions(c,n.r,[b[0],b[1],n.t,b[3]],s)}}
+  function splits(c,n,b,s){if(n.leaf||n.d>=s)return;const a=clamp(s-n.d,0,1);c.strokeStyle=rgba(P.ink,.85*a);c.lineWidth=Math.max(1,3-n.d*.4);c.beginPath();
+    if(n.f===0){c.moveTo(M.X(n.t),M.Y(b[2]));c.lineTo(M.X(n.t),M.Y(lerp(b[2],b[3],a)));c.stroke();splits(c,n.l,[b[0],n.t,b[2],b[3]],s);splits(c,n.r,[n.t,b[1],b[2],b[3]],s)}
+    else{c.moveTo(M.X(b[0]),M.Y(n.t));c.lineTo(M.X(lerp(b[0],b[1],a)),M.Y(n.t));c.stroke();splits(c,n.l,[b[0],b[1],b[2],n.t],s);splits(c,n.r,[b[0],b[1],n.t,b[3]],s)}}
+  return{frame(dt){
+    anim=Math.min(1,anim+dt/(400+lay.depth*280));const s=anim*(lay.depth+.999);const c=S.ctx;S.clear();
+    regions(c,tree,[0,1,0,1],s);c.strokeStyle=P.line;c.strokeRect(M.x0,M.y0,M.pw,M.ph);splits(c,tree,[0,1,0,1],s);
+    for(const p of pts)dot(c,M.X(p.x[0]),M.Y(p.x[1]),4.5,clsCol(p.c),P.canvas);
+    if(side){const x0=PW+14,x1=S.w-16,y0=34,y1=S.h-34,lw=(x1-x0)/lay.k;txt(c,'The learned tree',x0,22,{weight:600,color:P.ink});
+      const pos=n=>[x0+(n.lx+.5)*lw,y0+(lay.depth?n.d/lay.depth:0)*(y1-y0)];
+      c.lineWidth=1.3;for(const n of lay.nodes){if(n.par&&n.d<=s){const[a,b]=pos(n),[pa,pb]=pos(n.par);c.strokeStyle=P.line;c.beginPath();c.moveTo(pa,pb);c.lineTo(a,b);c.stroke()}}
+      for(const n of lay.nodes){if(n.d>s)continue;const[a,b]=pos(n);
+        if(n.leaf||n.d>=Math.floor(s)&&n.d===depth){dot(c,a,b,Math.min(8,lw/2.6),clsCol(n.prob>=.5),P.canvas)}
+        else if(!n.leaf){if(lw>=26||n.d<2){const lab=`${n.f?'y':'x'} < ${n.t.toFixed(2)}`;c.font='600 10.5px Inter';const tw=c.measureText(lab).width+10;rrect(c,a-tw/2,b-9,tw,18,5);c.fillStyle=P.surface;c.fill();c.strokeStyle=P.ink;c.stroke();txt(c,lab,a,b+1,{align:'center',base:'middle',size:10.5,weight:600,color:P.ink})}else dot(c,a,b,4,P.ink)}}
+    }
+    const acc=pts.filter(p=>(treeProb(tree,p.x)>=.5)===(p.c===1)).length/pts.length;
+    S.stat(`Depth <b>${lay.depth}</b> · <b>${nLeaves(tree)}</b> leaves<br>Training accuracy <b>${(acc*100).toFixed(0)}%</b>`);
+  },click(x,y){const u=M.U(x),v=M.V(y);if(u<0||u>1||v<0||v>1)return;pts.push({x:[u,v],c:addC});rebuild()}};
+};
+
+/* ---- Random forest ---- */
+D.rf=S=>{
+  const r=mulberry32(21);let pts,trees=[],N=1,cacheN=-1,growing=false,gt=0,mouse=null;const M=mapper(S.w,S.h,22);
+  const off=document.createElement('canvas'),octx=off.getContext('2d');
+  const train=()=>{pts=xorData(r,96,.12);trees=[];for(let i=0;i<40;i++){const bs=[];for(let j=0;j<pts.length;j++)bs.push(pts[(r()*pts.length)|0]);trees.push(buildTree(bs,6,{randFeat:true,r}))}cacheN=-1};train();
+  const heat=()=>{const gw=110,gh=Math.max(8,Math.round(gw*M.ph/M.pw));off.width=gw;off.height=gh;const id=octx.createImageData(gw,gh),ca=hexRgb(P.sup),cb=hexRgb(P.self);
+    for(let j=0;j<gh;j++)for(let i=0;i<gw;i++){const u=(i+.5)/gw,v=1-(j+.5)/gh;let s=0;for(let k=0;k<N;k++)s+=treeProb(trees[k],[u,v]);const p=s/N,col=p>=.5?cb:ca,o=(j*gw+i)*4;id.data[o]=col[0];id.data[o+1]=col[1];id.data[o+2]=col[2];id.data[o+3]=Math.round(255*(.05+.42*Math.abs(p-.5)*2))}
+    octx.putImageData(id,0,0);cacheN=N};
+  const sl=S.slider('Trees',1,40,1,N,v=>{N=v;growing=false});
+  S.btn('🌱 Grow the forest',()=>{N=1;growing=true;gt=0;sl.set(1)});S.btn('Resample data',train);
+  S.cap('With <b>1 tree</b>, the boundary is jagged and fooled by mislabeled points. Press <b>Grow the forest</b> to add trees, each trained on a random bootstrap sample, and watch their averaged vote smooth into a confident, stable boundary. <b>Hover</b> anywhere to see how the trees vote at that spot.');
+  return{frame(dt){
+    if(growing){gt+=dt;if(gt>160){gt=0;N++;sl.set(N);if(N>=40)growing=false}}
+    if(cacheN!==N||heat.col!==P.sup){heat();heat.col=P.sup}const c=S.ctx;S.clear();c.imageSmoothingEnabled=true;c.drawImage(off,M.x0,M.y0,M.pw,M.ph);c.strokeStyle=P.line;c.strokeRect(M.x0,M.y0,M.pw,M.ph);
+    for(const p of pts)dot(c,M.X(p.x[0]),M.Y(p.x[1]),4.2,clsCol(p.c),P.canvas);
+    let acc=0;for(const p of pts){let s=0;for(let k=0;k<N;k++)s+=treeProb(trees[k],p.x);if((s/N>=.5)===(p.c===1))acc++}
+    if(mouse){const u=M.U(mouse[0]),v=M.V(mouse[1]);if(u>=0&&u<=1&&v>=0&&v<=1){let vb=0;for(let k=0;k<N;k++)if(treeProb(trees[k],[u,v])>=.5)vb++;const va=N-vb;
+      const bx=clamp(mouse[0]+14,4,S.w-176),by=clamp(mouse[1]-58,4,S.h-62);rrect(c,bx,by,170,54,9);c.fillStyle=rgba(P.surface,.96);c.fill();c.strokeStyle=P.line;c.stroke();
+      txt(c,`Votes from ${N} tree${N>1?'s':''}`,bx+10,by+17,{size:11,weight:600,color:P.ink});const bw=150;c.fillStyle=P.sup;c.fillRect(bx+10,by+26,bw*va/N,10);c.fillStyle=P.self;c.fillRect(bx+10+bw*va/N,by+26,bw*vb/N,10);
+      txt(c,`A: ${va}`,bx+10,by+49,{size:11,color:P.sup,weight:600});txt(c,`B: ${vb}`,bx+160,by+49,{size:11,color:P.self,weight:600,align:'right'});dot(c,mouse[0],mouse[1],4,'transparent',P.ink)}}
+    S.stat(`Forest size <b>${N}</b> tree${N>1?'s':''}<br>Training accuracy <b>${(acc/pts.length*100).toFixed(0)}%</b>`);
+  },move(x,y){mouse=[x,y]},leave(){mouse=null}};
+};
+
+/* ---- Gradient boosting ---- */
+D.gbm=S=>{
+  const r=mulberry32(8);let xs=[],ys=[],F,base,learners=[],lr=.35,auto=false,at=0,hist=[],shown=[],target=[];
+  const strip=78,M=mapper(S.w,S.h-strip,28,22),NS=220;
+  const data=()=>{xs=[];ys=[];for(let i=0;i<70;i++){const x=r();xs.push(x);ys.push(clamp(.5+.28*Math.sin(6.6*x)+.1*(x>.62?1:-.2)+gauss(r)*.045,.02,.98))}};
+  const curve=()=>{const out=[];for(let i=0;i<NS;i++){const x=i/(NS-1);let v=base;for(const L of learners)v+=L.lr*predReg(L.t,x);out.push(v)}return out};
+  const mse=()=>ys.reduce((s,y,i)=>s+(y-F[i])**2,0)/ys.length;
+  const reset=()=>{base=ys.reduce((a,b)=>a+b,0)/ys.length;F=ys.map(()=>base);learners=[];hist=[mse()];target=curve();shown=target.slice()};
+  const add=()=>{if(learners.length>=120)return;const res=ys.map((y,i)=>y-F[i]);const t=regTree(xs,res,xs.map((_,i)=>i),2);learners.push({t,lr});F=F.map((f,i)=>f+lr*predReg(t,xs[i]));hist.push(mse());target=curve()};
+  data();reset();
+  S.btn('+ Add a tree',add);const ab=S.toggle('▶ Auto-boost','❚❚ Pause',v=>auto=v);S.btn('↺ Reset',()=>{reset();ab.set(false);auto=false});S.btn('New data',()=>{data();reset()});
+  S.slider('Learning rate',.05,1,.05,lr,v=>lr=v,v=>v.toFixed(2));
+  S.cap('The model starts as a flat line (the average). Each new tree is small, with only 4 leaves, and is fit to the <b>residuals</b>, meaning the errors still left over. The bottom strip shows what the latest tree learned. The blue prediction climbs closer to the data with every round. A smaller learning rate means each step is more cautious.');
+  return{frame(dt){
+    if(auto){at+=dt;if(at>320){at=0;add();if(learners.length>=120){auto=false;ab.set(false)}}}
+    for(let i=0;i<NS;i++)shown[i]=lerp(shown[i],target[i],.18);
+    const c=S.ctx;S.clear();grid(c,M);
+    c.strokeStyle=rgba(P.self,.45);c.lineWidth=1.2;for(let i=0;i<xs.length;i++){c.beginPath();c.moveTo(M.X(xs[i]),M.Y(ys[i]));c.lineTo(M.X(xs[i]),M.Y(F[i]));c.stroke()}
+    for(let i=0;i<xs.length;i++)dot(c,M.X(xs[i]),M.Y(ys[i]),4,P.ink,P.canvas);
+    c.strokeStyle=P.sup;c.lineWidth=3.2;c.beginPath();shown.forEach((v,i)=>{const X=M.X(i/(NS-1)),Y=M.Y(clamp(v,-.1,1.1));i?c.lineTo(X,Y):c.moveTo(X,Y)});c.stroke();
+    // strip
+    const sy=S.h-strip+8,sh=strip-18;rrect(c,M.x0,sy,M.pw,sh,8);c.fillStyle=rgba(P.surface2,.7);c.fill();
+    txt(c,learners.length?`Tree #${learners.length}: correction fitted to the residuals`:'No trees yet: the prediction is just the average',M.x0+10,sy+15,{size:11,weight:600});
+    const mid=sy+sh/2+6;c.strokeStyle=P.line;c.beginPath();c.moveTo(M.x0,mid);c.lineTo(M.x0+M.pw,mid);c.stroke();
+    if(learners.length){const L=learners[learners.length-1];c.strokeStyle=P.self;c.lineWidth=2.5;c.beginPath();for(let i=0;i<NS;i++){const x=i/(NS-1),v=predReg(L.t,x);const X=M.X(x),Y=mid-clamp(v*sh*1.4,-sh/2+4,sh/2-4);i?c.lineTo(X,Y):c.moveTo(X,Y)}c.stroke()}
+    spark(c,hist.slice(-120),S.w-176,8,164,58,'MSE loss ↓',P.self);
+    S.stat(`Trees <b>${learners.length}</b><br>MSE <b>${mse().toFixed(4)}</b>`);
+  }};
+};
+
+/* ---- SVM ---- */
+D.svm=S=>{
+  const r=mulberry32(4);let pts,w,b,lam=.01,addC=0;const M=mapper(S.w,S.h,22);
+  const reset=()=>{w=[r()-.5,r()-.5];b=0};
+  const gen=()=>{pts=[];for(let i=0;i<46;i++){const c=i%2;pts.push({x:[clamp((c?.65:.35)+gauss(r)*.1,.03,.97),clamp((c?.62:.38)+gauss(r)*.1,.03,.97)],c})}reset()};gen();
+  const f=x=>w[0]*(x[0]-.5)*2+w[1]*(x[1]-.5)*2+b;
+  const line=k=>{const A=2*w[0],B=2*w[1],C=-w[0]-w[1]+b-k;if(Math.abs(B)>Math.abs(A))return[[-.1,-(C+A*-.1)/B],[1.1,-(C+A*1.1)/B]];return[[-(C+B*-.1)/A,-.1],[-(C+B*1.1)/A,1.1]]};
+  S.slider('Regularisation λ',-3.5,-.5,.25,-2,v=>lam=10**v,v=>(10**v).toFixed(3));
+  const cb=S.btn('Click adds: ● class A',()=>{addC=1-addC;cb.textContent='Click adds: ● class '+(addC?'B':'A');cb.style.color=addC?P.self:P.sup});cb.style.color=P.sup;
+  S.btn('↺ Retrain',reset);S.btn('New data',gen);
+  S.cap('The SVM searches for the boundary with the <b>widest street</b> between the two classes. Only the ringed <b>support vectors</b> on or inside the dashed margins decide where it goes; you could delete every other point and nothing would change. A larger λ gives a wider, softer margin that tolerates some mistakes. <b>Click</b> to drop a point inside the street and watch it shift.');
+  return{frame(){
+    const n=pts.length;for(let it=0;it<10;it++){let g0=lam*w[0],g1=lam*w[1],gb=0;for(const p of pts){const y=p.c?1:-1;if(y*f(p.x)<1){g0-=y*(p.x[0]-.5)*2/n;g1-=y*(p.x[1]-.5)*2/n;gb-=y/n}}w[0]-=.25*g0;w[1]-=.25*g1;b-=.25*gb}
+    const c=S.ctx;S.clear();const gw=46,gh=Math.round(gw*M.ph/M.pw),cw=M.pw/gw,ch=M.ph/gh;
+    for(let j=0;j<gh;j++)for(let i=0;i<gw;i++){const v=f([(i+.5)/gw,1-(j+.5)/gh]);c.fillStyle=rgba(clsCol(v>0),.04+.12*Math.min(1,Math.abs(v)));cellRect(c,M,i,j,cw,ch)}
+    c.save();c.beginPath();c.rect(M.x0,M.y0,M.pw,M.ph);c.clip();
+    const nw=Math.hypot(w[0],w[1]);
+    [[-1,P.sup],[1,P.self]].forEach(([k,col])=>{const[a,bb]=line(k);c.setLineDash([7,5]);c.strokeStyle=col;c.lineWidth=1.8;c.beginPath();c.moveTo(M.X(a[0]),M.Y(a[1]));c.lineTo(M.X(bb[0]),M.Y(bb[1]));c.stroke()});
+    c.setLineDash([]);const[a,bb]=line(0);c.strokeStyle=P.ink;c.lineWidth=3;c.beginPath();c.moveTo(M.X(a[0]),M.Y(a[1]));c.lineTo(M.X(bb[0]),M.Y(bb[1]));c.stroke();c.restore();
+    let sv=0,err=0;for(const p of pts){const y=p.c?1:-1,m=y*f(p.x);if(m<=1.02){sv++;dot(c,M.X(p.x[0]),M.Y(p.x[1]),9,'transparent',P.ink)}if(m<0)err++;dot(c,M.X(p.x[0]),M.Y(p.x[1]),4.5,clsCol(p.c),P.canvas)}
+    S.stat(`Margin width <b>${(1/nw).toFixed(2)}</b><br>Support vectors <b>${sv}</b> · errors <b>${err}</b>`);
+  },click(x,y){const u=M.U(x),v=M.V(y);if(u>=0&&u<=1&&v>=0&&v<=1)pts.push({x:[u,v],c:addC})}};
+};
+
+/* ---- K-Means ---- */
+D.kmeans=S=>{
+  const r=mulberry32(9);let pts=[],K=4,C=[],disp=[],asg=[],iter=0,done=false,auto=false,at=0,trails=[];const M=mapper(S.w,S.h,22);
+  const cols=()=>[P.sup,P.uns,P.self,P.tab,P.cv,P.gen,P.nlp];
+  const gen=()=>{pts=[];const cs=[[.23,.72],[.72,.78],[.3,.24],[.76,.3],[.52,.5]];for(let i=0;i<170;i++){const c=cs[i%5];const sd=i%5===4?.06:.075;pts.push([clamp(c[0]+gauss(r)*sd,.02,.98),clamp(c[1]+gauss(r)*sd,.02,.98)])}};
+  const near=p=>{let bi=0,bd=1e9;C.forEach((c,i)=>{const d=(p[0]-c[0])**2+(p[1]-c[1])**2;if(d<bd){bd=d;bi=i}});return bi};
+  const init=()=>{C=[];for(let k=0;k<K;k++){const p=pts[(r()*pts.length)|0];C.push([p[0],p[1]])}disp=C.map(c=>c.slice());asg=pts.map(near);iter=0;done=false;trails=C.map(c=>[c.slice()])};
+  const step=()=>{if(done)return;C=C.map((c,k)=>{const m=pts.filter((_,i)=>asg[i]===k);if(!m.length)return c;return[m.reduce((s,p)=>s+p[0],0)/m.length,m.reduce((s,p)=>s+p[1],0)/m.length]});C.forEach((c,k)=>trails[k].push(c.slice()));
+    const na=pts.map(near);done=na.every((a,i)=>a===asg[i]);asg=na;iter++};
+  gen();init();
+  S.slider('Clusters K',2,7,1,K,v=>{K=v;init()});S.btn('Step ▸',step);const ab=S.toggle('▶ Run','❚❚ Pause',v=>auto=v);S.btn('🎲 Re-initialise',init);
+  S.cap('K-Means alternates two moves. First, <b>assign</b> each point to its nearest centre (the shaded regions). Then <b>move</b> each centre to the middle of its points (the ✕ marks and their trails). It stops when nothing changes. Try <b>Re-initialise</b> a few times: a different start can land in a worse grouping, which is why real projects run it several times.');
+  return{frame(dt){
+    if(auto){at+=dt;if(at>650){at=0;step();if(done){auto=false;ab.set(false)}}}
+    disp=disp.map((d,k)=>[lerp(d[0],C[k][0],.12),lerp(d[1],C[k][1],.12)]);
+    const c=S.ctx,cl=cols();S.clear();const gw=56,gh=Math.round(gw*M.ph/M.pw),cw=M.pw/gw,ch=M.ph/gh;
+    for(let j=0;j<gh;j++)for(let i=0;i<gw;i++){const u=(i+.5)/gw,v=1-(j+.5)/gh;let bi=0,bd=1e9;disp.forEach((d,k)=>{const q=(u-d[0])**2+(v-d[1])**2;if(q<bd){bd=q;bi=k}});c.fillStyle=rgba(cl[bi],.09);cellRect(c,M,i,j,cw,ch)}
+    c.lineWidth=1;pts.forEach((p,i)=>{const d=disp[asg[i]];c.strokeStyle=rgba(cl[asg[i]],.18);c.beginPath();c.moveTo(M.X(p[0]),M.Y(p[1]));c.lineTo(M.X(d[0]),M.Y(d[1]));c.stroke()});
+    pts.forEach((p,i)=>dot(c,M.X(p[0]),M.Y(p[1]),3.6,cl[asg[i]]));
+    trails.forEach((t,k)=>{c.strokeStyle=rgba(cl[k],.7);c.setLineDash([4,4]);c.lineWidth=1.5;c.beginPath();t.forEach((q,i)=>i?c.lineTo(M.X(q[0]),M.Y(q[1])):c.moveTo(M.X(q[0]),M.Y(q[1])));c.stroke();c.setLineDash([])});
+    disp.forEach((d,k)=>{const X=M.X(d[0]),Y=M.Y(d[1]);dot(c,X,Y,11,P.canvas,cl[k]);c.strokeStyle=cl[k];c.lineWidth=3;c.beginPath();c.moveTo(X-5,Y-5);c.lineTo(X+5,Y+5);c.moveTo(X+5,Y-5);c.lineTo(X-5,Y+5);c.stroke()});
+    const inertia=pts.reduce((s,p,i)=>s+(p[0]-C[asg[i]][0])**2+(p[1]-C[asg[i]][1])**2,0);
+    S.stat(`Iteration <b>${iter}</b> ${done?'· <b style="color:var(--uns)">converged ✓</b>':''}<br>Inertia <b>${inertia.toFixed(3)}</b>`);
+  },click(x,y){const u=M.U(x),v=M.V(y);if(u>=0&&u<=1&&v>=0&&v<=1){pts.push([u,v]);asg.push(near([u,v]));done=false}}};
+};
+
+/* ---- PCA ---- */
+D.pca=S=>{
+  const r=mulberry32(13);const Z=[];for(let i=0;i<150;i++)Z.push([gauss(r),gauss(r)]);
+  let th=32,ratio=4,proj=false,pt=0,bars=[.5,.5];
+  const R=Math.min(S.w,S.h)/2-30,cx=S.w/2,cy=S.h/2+6;
+  S.slider('Correlation strength',1,12,.5,ratio,v=>ratio=v,v=>v.toFixed(1)+'×');
+  const pb=S.toggle('Project onto PC1 ▸','◂ Restore 2-D',v=>proj=v);
+  S.btn('↻ Rotate',()=>{th+=45});
+  S.cap('PCA finds the direction in which the data <b>varies the most</b> (PC1), then the next one at a right angle to it (PC2). <b>Drag the chart</b> to rotate the cloud and the axes will follow it. <b>Project onto PC1</b> squashes 2 features into 1 while keeping most of the information. The bars show how much variance each component explains.');
+  return{frame(){
+    pt=lerp(pt,proj?1:0,.08);const a=th*Math.PI/180,s1=.42,s2=.42/Math.sqrt(ratio);
+    const pts=Z.map(([z1,z2])=>[Math.cos(a)*s1*z1-Math.sin(a)*s2*z2,Math.sin(a)*s1*z1+Math.cos(a)*s2*z2]);
+    const mx=pts.reduce((s,p)=>s+p[0],0)/pts.length,my=pts.reduce((s,p)=>s+p[1],0)/pts.length;
+    let sxx=0,syy=0,sxy=0;for(const[x,y]of pts){sxx+=(x-mx)**2;syy+=(y-my)**2;sxy+=(x-mx)*(y-my)}sxx/=pts.length;syy/=pts.length;sxy/=pts.length;
+    const tr=(sxx+syy)/2,dd=Math.sqrt(((sxx-syy)/2)**2+sxy**2),l1=tr+dd,l2=tr-dd;let v1=Math.abs(sxy)>1e-9?[sxy,l1-sxx]:(sxx>=syy?[1,0]:[0,1]);const nv=Math.hypot(...v1);v1=[v1[0]/nv,v1[1]/nv];const v2=[-v1[1],v1[0]];
+    const ev=[l1/(l1+l2),l2/(l1+l2)];bars=bars.map((b,i)=>lerp(b,ev[i],.1));
+    const X=x=>cx+x*R,Y=y=>cy-y*R;const c=S.ctx;S.clear();
+    c.strokeStyle=P.line;c.lineWidth=1;c.beginPath();c.moveTo(cx-R,cy);c.lineTo(cx+R,cy);c.moveTo(cx,cy-R);c.lineTo(cx,cy+R);c.stroke();
+    for(const p of pts){const d=(p[0]-mx)*v1[0]+(p[1]-my)*v1[1];const q=[mx+d*v1[0],my+d*v1[1]];const x=lerp(p[0],q[0],pt),y=lerp(p[1],q[1],pt);
+      if(pt>.05&&pt<.95){c.strokeStyle=rgba(P.muted,.25);c.beginPath();c.moveTo(X(p[0]),Y(p[1]));c.lineTo(X(x),Y(y));c.stroke()}dot(c,X(x),Y(y),3.4,rgba(P.uns,.85))}
+    const arrow=(v,len,col,lab)=>{const ex=X(mx+v[0]*len),ey=Y(my+v[1]*len),sx=X(mx-v[0]*len),sy=Y(my-v[1]*len);c.strokeStyle=col;c.lineWidth=3;c.beginPath();c.moveTo(sx,sy);c.lineTo(ex,ey);c.stroke();
+      const an=Math.atan2(ey-sy,ex-sx);c.fillStyle=col;c.beginPath();c.moveTo(ex,ey);c.lineTo(ex-11*Math.cos(an-.4),ey-11*Math.sin(an-.4));c.lineTo(ex-11*Math.cos(an+.4),ey-11*Math.sin(an+.4));c.fill();txt(c,lab,ex+8*Math.cos(an),ey+8*Math.sin(an)+4,{weight:700,color:col,size:13})};
+    arrow(v1,2*Math.sqrt(l1),P.self,'PC1');arrow(v2,Math.max(.05,2*Math.sqrt(Math.max(l2,0))),P.sup,'PC2');
+    const bx=14,by=14;rrect(c,bx,by,170,70,9);c.fillStyle=rgba(P.surface,.94);c.fill();c.strokeStyle=P.line;c.stroke();txt(c,'Variance explained',bx+10,by+17,{size:11,weight:600});
+    [['PC1',P.self],['PC2',P.sup]].forEach(([l,col],i)=>{const yy=by+28+i*20;txt(c,l,bx+10,yy+9,{size:11,weight:600,color:col});c.fillStyle=P.line;c.fillRect(bx+44,yy,90,10);c.fillStyle=col;c.fillRect(bx+44,yy,90*bars[i],10);txt(c,(bars[i]*100).toFixed(0)+'%',bx+160,yy+9,{size:11,align:'right',color:P.ink})});
+    S.stat(`PC1 keeps <b>${(ev[0]*100).toFixed(1)}%</b> of variance<br>2 features → 1 component`);
+  },drag(x,y,dx){th-=dx*.5}};
+};
+
+/* ---- CNN ---- */
+D.cnn=S=>{
+  const SEED=["..............","..............","...#########..","...#########..",".........###..","........###...",".......###....",".......###....","......###.....","......###.....",".....###......",".....###......","..............",".............."];
+  let img=SEED.map(rw=>[...rw].map(ch=>ch==='#'?1:0));
+  const KS={'Vertical edges':[[1,0,-1],[1,0,-1],[1,0,-1]],'Horizontal edges':[[1,1,1],[0,0,0],[-1,-1,-1]],'Diagonal':[[0,1,1],[-1,0,1],[-1,-1,0]],'Blur':[[1,1,1],[1,1,1],[1,1,1]].map(r=>r.map(v=>v/9))};
+  let kn='Vertical edges',k=0,speed=1.5,fm,pool,mx,pauseT=0,paint=null;
+  const comp=()=>{const K=KS[kn];fm=[];for(let i=0;i<12;i++){fm.push([]);for(let j=0;j<12;j++){let s=0;for(let a=0;a<3;a++)for(let b=0;b<3;b++)s+=img[i+a][j+b]*K[a][b];fm[i].push(Math.max(0,s))}}
+    pool=[];for(let i=0;i<6;i++){pool.push([]);for(let j=0;j<6;j++)pool[i].push(Math.max(fm[2*i][2*j],fm[2*i+1][2*j],fm[2*i][2*j+1],fm[2*i+1][2*j+1]))}mx=Math.max(1e-6,...fm.flat())};
+  comp();
+  const gap=22,narrow=S.w<560;let cs,ix,iy,kx,ky,fx,fy,px,py;
+  if(!narrow){cs=Math.min((S.w-24-3*gap)/35,(S.h-90)/14);ix=Math.max(12,(S.w-(35*cs+3*gap))/2);iy=(S.h-14*cs)/2+14;kx=ix+14*cs+gap;ky=S.h/2-1.5*cs+14;fx=kx+3*cs+gap;fy=(S.h-12*cs)/2+14;px=fx+12*cs+gap;py=(S.h-6*cs)/2+14}
+  else{cs=Math.min((S.w-24-gap)/18,(S.h-70)/26);const L=(S.w-18*cs-gap)/2;ix=L;iy=28;kx=ix+14*cs+gap;ky=iy+5.5*cs;fx=L;fy=iy+14*cs+38;px=fx+12*cs+gap;py=fy+3*cs}
+  S.seg(Object.keys(KS),kn,v=>{kn=v;comp();k=0;pauseT=0});
+  S.slider('Speed',.5,6,.5,speed,v=>speed=v,v=>v+'×');
+  S.btn('Clear canvas',()=>{img=img.map(r=>r.map(()=>0));comp();k=0});S.btn('↺ Restore "7"',()=>{img=SEED.map(rw=>[...rw].map(ch=>ch==='#'?1:0));comp();k=0});
+  S.cap('A 3×3 <b>filter</b> slides across the image. At each position it multiplies the pixels by its weights and adds them up, producing a <b>feature map</b> that lights up wherever the filter\'s pattern appears. Max-pooling then shrinks the map, keeping only the strongest signals. Switch filters to detect different edges, and <b>draw on the input grid</b> to test your own shapes.');
+  const hit=(x,y)=>{const j=Math.floor((x-ix)/cs),i=Math.floor((y-iy)/cs);return i>=0&&i<14&&j>=0&&j<14?[i,j]:null};
+  return{frame(dt){
+    const total=144;if(k<total)k=Math.min(total,k+speed*dt/45);else{pauseT+=dt;if(pauseT>2200){k=0;pauseT=0}}
+    const idx=Math.min(143,Math.floor(k)),wi=Math.floor(idx/12),wj=idx%12,K=KS[kn];const c=S.ctx;S.clear();
+    txt(c,'Input image',ix,iy-10,{size:11,weight:600});txt(c,'Filter',kx,ky-10,{size:11,weight:600});txt(c,'Feature map (ReLU)',fx,fy-10,{size:11,weight:600});txt(c,'Max-pool 2×2',px,py-10,{size:11,weight:600});
+    for(let i=0;i<14;i++)for(let j=0;j<14;j++){c.fillStyle=img[i][j]?P.ink:P.surface;c.fillRect(ix+j*cs,iy+i*cs,cs-1,cs-1)}
+    if(k<total){c.strokeStyle=P.cv;c.lineWidth=2.5;c.strokeRect(ix+wj*cs-1,iy+wi*cs-1,3*cs+1,3*cs+1);c.fillStyle=rgba(P.cv,.15);c.fillRect(ix+wj*cs,iy+wi*cs,3*cs,3*cs)}
+    for(let a=0;a<3;a++)for(let b=0;b<3;b++){const v=K[a][b];c.fillStyle=v>0?rgba(P.sup,.15+.5*Math.min(1,v)):v<0?rgba(P.self,.15+.5*Math.min(1,-v)):P.surface;c.fillRect(kx+b*cs,ky+a*cs,cs-1,cs-1);if(cs>=14)txt(c,Number.isInteger(v)?String(v):v.toFixed(2).replace('0.','.'),kx+b*cs+cs/2,ky+a*cs+cs/2+1,{size:Math.min(11,cs*.55),align:'center',base:'middle',color:P.ink,weight:600})}
+    for(let i=0;i<12;i++)for(let j=0;j<12;j++){const n=i*12+j;if(n<=idx&&(n<k||k>=total)){const v=fm[i][j]/mx;c.fillStyle=v>0?rgba(P.cv,.12+.88*v):P.surface}else c.fillStyle=rgba(P.line,.4);c.fillRect(fx+j*cs,fy+i*cs,cs-1,cs-1)}
+    if(k<total){c.strokeStyle=P.cv;c.lineWidth=2;c.strokeRect(fx+wj*cs-1,fy+wi*cs-1,cs+1,cs+1);c.strokeStyle=rgba(P.cv,.35);c.lineWidth=1;c.beginPath();c.moveTo(ix+(wj+3)*cs,iy+(wi+1.5)*cs);c.lineTo(kx,ky+1.5*cs);c.moveTo(kx+3*cs,ky+1.5*cs);c.lineTo(fx+wj*cs,fy+(wi+.5)*cs);c.stroke()}
+    const pk=k>=total?Math.min(36,pauseT/30):0;
+    for(let i=0;i<6;i++)for(let j=0;j<6;j++){const n=i*6+j;if(n<pk){const v=pool[i][j]/mx;c.fillStyle=v>0?rgba(P.cv,.12+.88*v):P.surface}else c.fillStyle=rgba(P.line,.4);c.fillRect(px+j*cs,py+i*cs,cs-1,cs-1)}
+    let bi=0,bj=0;fm.forEach((row,i)=>row.forEach((v,j)=>{if(v>fm[bi][bj]){bi=i;bj=j}}));
+    S.stat(`Filter <b>${kn}</b><br>Peak activation <b>${fm[bi][bj].toFixed(2)}</b> at (${bi},${bj})`);
+  },down(x,y){const h=hit(x,y);if(h){paint=1-img[h[0]][h[1]];img[h[0]][h[1]]=paint;comp();k=0;pauseT=0}},drag(x,y){if(paint===null)return;const h=hit(x,y);if(h&&img[h[0]][h[1]]!==paint){img[h[0]][h[1]]=paint;comp();k=0}},up(){paint=null}};
+};
+
+/* ---- BERT ---- */
+D.bert=S=>{
+  const BS=[
+    {t:['The','bank','raised','interest','[MASK]','again','.'],m:4,att:[.04,.22,.18,.39,.04,.09,.04],bi:[['rates',.74],['payments',.08],['charges',.06],['levels',.04],['costs',.03]],lo:[['rates',.31],['payments',.14],['income',.12],['levels',.09],['charges',.08]]},
+    {t:['Stocks','[MASK]','after','strong','earnings','reports','.'],m:1,att:[.34,.05,.14,.21,.17,.06,.03],bi:[['rose',.52],['rallied',.21],['jumped',.12],['climbed',.06],['fell',.04]],lo:[['fell',.19],['rose',.18],['are',.15],['were',.12],['traded',.09]]},
+    {t:['The','patient','was','given','a','[MASK]','dose','.'],m:5,att:[.03,.2,.07,.19,.09,.05,.33,.04],bi:[['higher',.36],['single',.22],['lower',.17],['daily',.11],['second',.06]],lo:[['new',.16],['higher',.12],['drug',.11],['small',.10],['single',.09]]}
+  ];
+  let si=0,q=BS[0].m,bidir=true,a=0,fill=false,bw=[0,0,0,0,0];
+  const sentences=['Finance','Markets','Clinical'];
+  S.seg(sentences,'Finance',v=>{si=sentences.indexOf(v);q=BS[si].m;a=0;fill=false});
+  S.seg(['Both directions (BERT)','Left only (GPT-style)'],'Both directions (BERT)',v=>{bidir=v.startsWith('Both');a=0;fill=false});
+  const fb=S.btn('✨ Fill the mask',()=>{fill=!fill;fb.classList.toggle('on',fill)});
+  S.cap('BERT learns by filling in hidden words. The arcs show <b>self-attention</b>, meaning how strongly the selected word looks at every other word (thicker means stronger). Because BERT reads <b>both directions</b>, words after the blank help it guess. Switch to <b>Left only</b> and the prediction gets much less certain. <b>Click any word</b> to see its attention. (The weights are illustrative.)');
+  const weights=s=>{const n=s.t.length;let w;if(q===s.m)w=s.att.slice();else{w=s.t.map((_,j)=>Math.exp(-Math.abs(q-j)*.7)*(j===q?1.6:1)*(j===s.m?.4:1))}
+    if(!bidir)w=w.map((v,j)=>j<=q?v:0);const sm=w.reduce((x,y)=>x+y,0)||1;return w.map(v=>v/sm)};
+  let boxes=[];
+  return{frame(dt){
+    a=Math.min(1,a+dt/700);const e=1-Math.pow(1-a,3);const s=BS[si],c=S.ctx;S.clear();
+    let fs=16;c.font=`600 ${fs}px Inter`;const pad=12,gp=8;let tw=s.t.reduce((t,w)=>t+c.measureText(w).width+pad*2+gp,0);while(tw>S.w-30&&fs>10){fs--;c.font=`600 ${fs}px Inter`;tw=s.t.reduce((t,w)=>t+c.measureText(w).width+pad*2+gp,0)}
+    const ty=Math.round(S.h*.46);let x=(S.w-tw)/2;boxes=s.t.map(w=>{const wd=c.measureText(w).width+pad*2;const bx={x,w:wd,cx:x+wd/2};x+=wd+gp;return bx});
+    const W=weights(s),isM=q===s.m,col=isM?P.self:P.nlp;
+    W.forEach((w,j)=>{if(j===q||w<.005)return;const x1=boxes[q].cx,x2=boxes[j].cx,hgt=Math.min(ty-30,24+Math.abs(x2-x1)*.38);c.strokeStyle=rgba(col,(.2+.8*Math.min(1,w*3))*e);c.lineWidth=1+w*22*e;c.beginPath();c.moveTo(x1,ty-20);c.quadraticCurveTo((x1+x2)/2,ty-20-hgt*2*e,x2,ty-20);c.stroke();
+      if(w>.08&&e>.9)txt(c,(w*100).toFixed(0)+'%',(x1+x2)/2,ty-22-hgt+(hgt>60?0:0),{size:10.5,align:'center',weight:700,color:P.ink})});
+    if(!bidir){c.fillStyle=rgba(P.muted,.12);const xr=boxes[q].x+boxes[q].w+gp/2;c.fillRect(xr,ty-24,S.w-xr,44);txt(c,'hidden from model →',S.w-12,ty+36,{size:10.5,align:'right'})}
+    s.t.forEach((w,j)=>{const b=boxes[j],isMask=j===s.m;rrect(c,b.x,ty-18,b.w,36,8);
+      c.fillStyle=isMask?(fill?rgba(P.uns,.25):rgba(P.self,.18)):(j===q?rgba(P.nlp,.18):P.surface);c.fill();c.strokeStyle=j===q?col:P.line;c.lineWidth=j===q?2:1;c.stroke();
+      const lab=isMask&&fill?(bidir?s.bi:s.lo)[0][0]:w;txt(c,lab,b.cx,ty+1,{size:fs,align:'center',base:'middle',weight:600,color:isMask?(fill?P.uns:P.self):P.ink})});
+    const preds=bidir?s.bi:s.lo,by=ty+58,bh=Math.min(17,(S.h-by-14)/5-5),lw=Math.min(90,S.w*.24),barMax=S.w-lw-90;
+    txt(c,`BERT's guesses for [MASK]${bidir?'':' (left context only)'}`,lw-70>12?24:12,by-10,{size:11,weight:600});
+    preds.forEach(([wd,p],i)=>{bw[i]=lerp(bw[i],p,.12);const yy=by+i*(bh+6);txt(c,wd,lw+10,yy+bh/2+1,{align:'right',base:'middle',size:12.5,color:P.ink,weight:i?500:700});rrect(c,lw+18,yy,Math.max(2,barMax*bw[i]),bh,4);c.fillStyle=i?rgba(P.nlp,.45):P.nlp;c.fill();txt(c,(bw[i]*100).toFixed(0)+'%',lw+26+barMax*bw[i],yy+bh/2+1,{base:'middle',size:11.5,color:P.ink})});
+    S.stat(`Reading <b>${bidir?'both directions':'left-to-right only'}</b><br>Top guess <b>${preds[0][0]}</b> · ${(preds[0][1]*100).toFixed(0)}%`);
+  },click(x,y){boxes.forEach((b,j)=>{if(x>=b.x&&x<=b.x+b.w&&Math.abs(y-S.h*.46)<26){q=j;a=0}})}};
+};
+
+/* ---- GPT ---- */
+D.gpt=S=>{
+  const LM={the:[['company',2],['bank',1.7],['market',1.5],['model',.9]],company:[['reported',2.1],['expects',1.6],['announced',1.4],['raised',.7]],bank:[['raised',1.9],['reported',1.6],['expects',1]],market:[['rallied',2],['fell',1.6],['expects',.8]],model:[['predicts',2.2],['expects',1],['reported',.5]],
+    reported:[['strong',1.9],['record',1.6],['weak',1.1]],expects:[['growth',1.8],['strong',1.5],['revenue',1.4],['weak',.6]],announced:[['new',1.9],['record',1.3],['strong',.8]],raised:[['rates',2.1],['guidance',1.7],['revenue',.5]],rallied:[['after',2],['today',1.5],['.',.6]],fell:[['after',1.9],['today',1.6],['.',.7]],predicts:[['growth',1.9],['revenue',1.5],['weak',.6]],
+    strong:[['revenue',2],['earnings',1.8],['growth',1.6]],record:[['earnings',2],['revenue',1.8]],weak:[['guidance',1.8],['earnings',1.7],['growth',1]],new:[['products',2],['guidance',1.5]],revenue:[['.',1.8],['growth',1.5],['this',1.4],['today',.9]],growth:[['.',1.8],['this',1.7],['today',.9]],earnings:[['.',2],['this',1.3],['today',1]],
+    guidance:[['.',2],['this',1.2],['today',.9]],rates:[['.',1.7],['today',1.6],['again',1.2]],products:[['.',2],['this',1.3],['today',.8]],after:[['strong',1.6],['record',1.3],['weak',1.2],['the',.7]],this:[['quarter',2.6],['year',1.6]],quarter:[['.',2.4]],year:[['.',2.4]],today:[['.',2.4]],again:[['.',2.4]]};
+  const r=mulberry32(Date.now()%99991);let seq=['The'],T=.8,auto=false,at=0,phase='show',pt=0,pick=-1,done=false,disp=[],lastPick=null,flash=0;
+  const dist=()=>{const o=LM[seq[seq.length-1].toLowerCase()];if(!o)return[];const ex=o.map(([w,l])=>Math.exp(l/T));const s=ex.reduce((a,b)=>a+b,0);return o.map(([w],i)=>[w,ex[i]/s]).sort((a,b)=>b[1]-a[1])};
+  let cur=dist();disp=cur.map(()=>0);
+  const next=()=>{if(phase!=='show')return;if(done){reset();return}cur=dist();let u=r(),i=0;for(;i<cur.length-1;i++){u-=cur[i][1];if(u<=0)break}pick=i;phase='pick';pt=0};
+  const reset=()=>{seq=['The'];done=false;phase='show';pick=-1;cur=dist();disp=cur.map(()=>0);lastPick=null};
+  S.btn('Next token ▸',next);const ab=S.toggle('▶ Auto-generate','❚❚ Pause',v=>auto=v);S.btn('↺ New sentence',reset);
+  S.slider('Temperature',.1,2,.1,T,v=>{T=v;if(phase==='show')cur=dist()},v=>v.toFixed(1));
+  S.cap('GPT writes <b>one token at a time</b>. For each step it scores every possible next word, turns the scores into probabilities, and samples one. <b>Temperature</b> reshapes those odds: at a low value it almost always picks the top word (safe and repetitive), and at a high value the odds flatten out (creative but riskier). (This uses a tiny finance vocabulary for illustration.)');
+  return{frame(dt){
+    if(auto&&phase==='show'){at+=dt;if(at>(done?1600:650)){at=0;next()}}
+    if(phase==='pick'){pt+=dt;if(pt>520){const w=cur[pick][0];lastPick=[w,cur[pick][1]];seq.push(w);flash=1;if(w==='.'||seq.length>=16){done=true;if(w!=='.')seq.push('.')}phase='show';cur=done?[]:dist();disp=cur.map(()=>0);pick=-1}}
+    flash=Math.max(0,flash-dt/600);
+    const c=S.ctx;S.clear();txt(c,'Generated text',18,26,{size:11,weight:600});
+    let x=18,y=56;c.font='600 18px Inter';seq.forEach((w,i)=>{const isP=w==='.';const ww=c.measureText(w).width+(isP?6:16);if(!isP&&x+ww>S.w-18){x=18;y+=36}
+      const lastTok=i===seq.length-1;if(!isP){rrect(c,x,y-16,ww,30,7);c.fillStyle=lastTok&&flash>0?rgba(P.gen,.2+.5*flash):rgba(P.nlp,.1);c.fill()}
+      txt(c,w,x+(isP?0:8),y+1,{size:18,base:'middle',weight:600,color:P.ink});x+=ww+(isP?0:6)});
+    if(!done&&Math.floor(performance.now()/500)%2){c.fillStyle=P.ink;c.fillRect(x+2,y-12,2.5,24)}
+    if(done)txt(c,'⟨end of sequence⟩',18,y+40,{size:12,color:P.muted,weight:600});
+    const by=Math.max(y+64,S.h*.46),avail=S.h-by-12,bh=Math.min(22,avail/5-6),lw=96,barMax=S.w-lw-80;
+    if(cur.length){txt(c,`Next-token probabilities after “${seq[seq.length-1]}” (temperature ${T.toFixed(1)})`,18,by-10,{size:11,weight:600});
+      cur.slice(0,5).forEach(([w,p],i)=>{disp[i]=lerp(disp[i]||0,p,.15);const yy=by+i*(bh+6),sel=i===pick;txt(c,w==='.'?'“.” (end)':w,lw,yy+bh/2+1,{align:'right',base:'middle',size:13,weight:sel?700:500,color:P.ink});
+        rrect(c,lw+10,yy,Math.max(2,barMax*disp[i]),bh,5);c.fillStyle=sel?P.gen:rgba(P.nlp,i?.45:.85);c.fill();if(sel){c.strokeStyle=P.ink;c.lineWidth=2;c.stroke()}txt(c,(disp[i]*100).toFixed(0)+'%',lw+18+barMax*disp[i],yy+bh/2+1,{base:'middle',size:12,color:P.ink})})}
+    S.stat(`Tokens <b>${seq.length}</b> · T = <b>${T.toFixed(1)}</b><br>${lastPick?`Last pick “${lastPick[0]}” (${(lastPick[1]*100).toFixed(0)}%)`:'Press Next token'}`);
+  }};
+};
+
+/* ---- GAN ---- */
+D.gan=S=>{
+  const R={m1:-1.2,s1:.35,m2:1.3,s2:.45},keys=['m1','s1','m2','s2'],ph={m1:0,s1:1.3,m2:2.1,s2:3.4};const r=mulberry32(2);
+  let g,ep=0,train=false,collapse=false,ymax=1.2,sr=[],sg=[];const reset=()=>{g={m1:-.1,s1:.22,m2:.15,s2:.22};ep=0};reset();
+  const N=(x,m,s)=>Math.exp(-.5*((x-m)/s)**2)/(s*2.5066);const pd=(p,x)=>.5*N(x,p.m1,p.s1)+.5*N(x,p.m2,p.s2);
+  const samp=(p)=>r()<.5?p.m1+p.s1*gauss(r):p.m2+p.s2*gauss(r);
+  const tb=S.toggle('▶ Train','❚❚ Pause',v=>train=v);S.btn('↺ Reset',()=>{reset();train=false;tb.set(false)});
+  const cb=S.toggle('Mode collapse: off','Mode collapse: ON',v=>collapse=v);
+  S.cap('The <b>generator</b> (orange) learns to imitate the real data distribution (green) only through feedback from the <b>discriminator</b>, whose belief that a sample is real is the dashed line. Watch the two compete: the fakes overshoot and wobble, then settle. Once the curves match, the discriminator can do no better than a coin flip (50%). Turn on <b>mode collapse</b> to see a classic failure where the generator only learns one peak. (This is a simplified 1-D simulation.)');
+  return{frame(){
+    if(train){const T=collapse?{m1:1.3,s1:.45,m2:1.3,s2:.45}:R;const dec=Math.exp(-ep/260);keys.forEach(k=>{g[k]+=.022*(T[k]-g[k])+.035*dec*Math.sin(ep*.19+ph[k]);if(k[0]==='s')g[k]=Math.max(.12,g[k])});ep++}
+    if(ep%6===0||!sr.length){sr=Array.from({length:40},()=>samp(R));sg=Array.from({length:40},()=>samp(g))}
+    const c=S.ctx;S.clear();const M=mapper(S.w,S.h-66,28,22),xs=x=>M.X((x+3)/6);
+    let best=0;const pts=[];for(let i=0;i<=240;i++){const x=-3+6*i/240,a=pd(R,x),b=pd(g,x);pts.push([x,a,b]);best=Math.max(best,a,b)}ymax=lerp(ymax,best*1.15,.1);const ys=v=>M.Y(v/ymax);
+    grid(c,M);
+    const area=(idx,col)=>{c.beginPath();c.moveTo(xs(-3),ys(0));pts.forEach(p=>c.lineTo(xs(p[0]),ys(p[idx])));c.lineTo(xs(3),ys(0));c.closePath();c.fillStyle=rgba(col,.22);c.fill();c.beginPath();pts.forEach((p,i)=>i?c.lineTo(xs(p[0]),ys(p[idx])):c.moveTo(xs(p[0]),ys(p[idx])));c.strokeStyle=col;c.lineWidth=2.6;c.stroke()};
+    area(1,P.uns);area(2,P.self);
+    c.setLineDash([6,5]);c.strokeStyle=P.ink;c.lineWidth=1.6;c.beginPath();pts.forEach((p,i)=>{const d=p[1]/(p[1]+p[2]+1e-9);const Y=M.Y(d);i?c.lineTo(xs(p[0]),Y):c.moveTo(xs(p[0]),Y)});c.stroke();c.setLineDash([]);
+    txt(c,'D(x) = P(real)',M.X(1)-4,M.Y(1)+12,{align:'right',size:11,color:P.ink,weight:600});
+    [['Real data',P.uns],['Generator',P.self]].forEach(([l,col],i)=>{dot(c,M.x0+8+i*104,M.y0+6,5,col);txt(c,l,M.x0+18+i*104,M.y0+10,{size:11.5,color:P.ink,weight:600})});
+    const sy=S.h-50;txt(c,'real samples',M.x0,sy+4,{size:10.5});txt(c,'fakes',M.x0,sy+26,{size:10.5});
+    sr.forEach(x=>{if(x>-3&&x<3)dot(c,xs(x),sy-4,3.4,rgba(P.uns,.85))});sg.forEach(x=>{if(x>-3&&x<3)dot(c,xs(x),sy+18,3.4,rgba(P.self,.85))});
+    let acc=0;pts.forEach(p=>acc+=Math.max(p[1],p[2]));acc=acc*(6/240)/2;
+    S.stat(`Epoch <b>${ep}</b><br>Discriminator accuracy <b>${(clamp(acc,.5,1)*100).toFixed(0)}%</b> ${acc<.54?'· <b style="color:var(--uns)">fooled ✓</b>':''}`);
+  }};
+};
+
+/* ---- Diffusion ---- */
+D.diff=S=>{
+  const NN=40,TT=200,betas=Array.from({length:TT},(_,i)=>1e-4+(.02-1e-4)*i/(TT-1)),ab=[];let p=1;for(const b of betas){p*=1-b;ab.push(p)}
+  let seed=1,x0,eps,t=0,target=null;const off=document.createElement('canvas');off.width=off.height=NN;const octx=off.getContext('2d'),idat=octx.createImageData(NN,NN);
+  const PALS=[{top:[24,28,78],bot:[247,145,80],sun:[255,224,130],mtn:[64,40,92],mtn2:[96,58,110],wat:[40,48,110]},{top:[60,130,225],bot:[185,222,255],sun:[255,246,190],mtn:[58,112,78],mtn2:[90,140,96],wat:[44,104,175]},{top:[8,12,36],bot:[48,58,118],sun:[236,236,248],mtn:[24,28,52],mtn2:[38,44,74],wat:[18,26,64]}];
+  const scene=sd=>{const r=mulberry32(sd*97+3),pl=PALS[sd%3],sx=.25+r()*.5,hz=.64,p1=[.2+r()*.25,.28+r()*.12],p2=[.6+r()*.25,.22+r()*.14],out=new Float32Array(NN*NN*3);
+    for(let j=0;j<NN;j++)for(let i=0;i<NN;i++){const u=(i+.5)/NN,v=(j+.5)/NN;let col;
+      if(v<hz){const k=v/hz;col=pl.top.map((a,q)=>lerp(a,pl.bot[q],k));if(Math.hypot(u-sx,v-.38)<.1)col=pl.sun;
+        const m1=p1[1]-Math.abs(u-p1[0])*.9,m2=p2[1]-Math.abs(u-p2[0])*1.1;if(hz-v<m1)col=pl.mtn2;if(hz-v<m2)col=pl.mtn}
+      else{col=pl.wat;if(Math.abs(u-sx)<.07*(1-(v-hz))&&j%2===0)col=pl.sun.map((a,q)=>lerp(a,pl.wat[q],.35))}
+      const o=(j*NN+i)*3;out[o]=col[0]/127.5-1;out[o+1]=col[1]/127.5-1;out[o+2]=col[2]/127.5-1}return out};
+  const noise=sd=>{const r=mulberry32(sd*13+7);return Float32Array.from({length:NN*NN*3},()=>gauss(r))};
+  const load=()=>{x0=scene(seed);eps=noise(seed)};load();
+  const sl=S.slider('Timestep t',0,TT,1,0,v=>{t=v;target=null},v=>v);
+  S.btn('✨ Generate (denoise)',()=>{t=TT;target=0});S.btn('Add noise (forward)',()=>{target=TT});S.btn('🎲 New sample',()=>{seed++;load();t=TT;target=0});
+  S.cap('<b>Forward process:</b> during training, real images are destroyed step by step with Gaussian noise. <b>Reverse process:</b> a network learns to undo one small step at a time, so generation starts from pure static and denoises it into an image. The curves show the shrinking signal and the growing noise across the 200 steps. Press <b>Generate</b> or scrub the slider. (Simplified: the reverse path is shown using the noise schedule.)');
+  const render=tt=>{const k=Math.round(clamp(tt,0,TT));const a=k===0?1:ab[k-1],sa=Math.sqrt(a),sn=Math.sqrt(1-a);for(let q=0;q<NN*NN;q++)for(let ch=0;ch<3;ch++){const v=sa*x0[q*3+ch]+sn*eps[q*3+ch];idat.data[q*4+ch]=clamp((v+1)*127.5,0,255)}for(let q=0;q<NN*NN;q++)idat.data[q*4+3]=255;octx.putImageData(idat,0,0);return[sa,sn]};
+  return{frame(dt){
+    if(target!==null){const dir=Math.sign(target-t);t+=dir*dt*.075;if((dir>0&&t>=target)||(dir<0&&t<=target)){t=target;target=null}sl.set(Math.round(t))}
+    const c=S.ctx;S.clear();c.imageSmoothingEnabled=false;
+    const thumbs=5,th=Math.min(64,(S.w-40-(thumbs-1)*10)/thumbs),sz=Math.min(S.h-th-62,S.w*(S.w>560?.42:.9)),ix=18,iy=26;
+    const[sa,sn]=render(t);c.drawImage(off,ix,iy,sz,sz);c.strokeStyle=P.line;c.strokeRect(ix,iy,sz,sz);
+    txt(c,`x_t  at  t = ${Math.round(t)}`,ix,iy-8,{size:11.5,weight:600,color:P.ink});
+    const gx=ix+sz+30,gw=S.w-gx-18;
+    if(gw>140){const gy=iy+10,gh=sz-30;txt(c,'Noise schedule',gx,iy-8,{size:11.5,weight:600,color:P.ink});c.strokeStyle=P.line;c.strokeRect(gx,gy,gw,gh);
+      [[q=>Math.sqrt(q),P.uns,'signal √ᾱ'],[q=>Math.sqrt(1-q),P.self,'noise √(1−ᾱ)']].forEach(([fn,col,lab],li)=>{c.beginPath();for(let i=0;i<=TT;i++){const a=i===0?1:ab[i-1],X=gx+i/TT*gw,Y=gy+gh-fn(a)*gh;i?c.lineTo(X,Y):c.moveTo(X,Y)}c.strokeStyle=col;c.lineWidth=2.5;c.stroke();dot(c,gx+10,gy+gh+16+li*16,4,col);txt(c,lab,gx+20,gy+gh+20+li*16,{size:11,color:P.ink})});
+      const mx=gx+t/TT*gw;c.strokeStyle=P.ink;c.lineWidth=1.5;c.beginPath();c.moveTo(mx,gy);c.lineTo(mx,gy+gh);c.stroke();dot(c,mx,gy+gh-sa*gh,5,P.uns,P.canvas);dot(c,mx,gy+gh-sn*gh,5,P.self,P.canvas);
+      txt(c,'t = 0',gx,gy+gh+12,{size:10});txt(c,'t = 200',gx+gw,gy+gh+12,{size:10,align:'right'})}
+    const ty=S.h-th-12;txt(c,'Forward process →    ← reverse (generation)',18,ty-8,{size:11,weight:600});
+    for(let i=0;i<thumbs;i++){const tt=i*TT/(thumbs-1);render(tt);const xx=18+i*(th+10);c.drawImage(off,xx,ty,th,th);const near=Math.abs(tt-t)<TT/(thumbs-1)/2;c.strokeStyle=near?P.gen:P.line;c.lineWidth=near?3:1;c.strokeRect(xx,ty,th,th);txt(c,'t='+tt,xx+th+3,ty+th,{size:9.5})}
+    render(t);
+    S.stat(`Step <b>${Math.round(t)}</b> / ${TT}<br>signal <b>${sa.toFixed(2)}</b> · noise <b>${sn.toFixed(2)}</b>`);
+  }};
+};
+
+/* ================= lab tabs ================= */
+const tabs=$('#tabs');
+ALG.forEach(a=>{const b=el('button','tab',`<i style="background:var(--${a.type})"></i>${a.s}`);b.dataset.id=a.id;b.setAttribute('role','tab');b.onclick=()=>openDemo(a.id);tabs.append(b)});
+
+/* ================= matrix ================= */
+const cell=v=>v===2?'<i class="dot full"></i>':v===1?'<i class="dot part"></i>':'<span style="color:var(--line)">—</span>';
+$('#matrixBody').innerHTML=ALG.map(a=>`<tr data-id="${a.id}" data-dom="${Object.keys(a.dom).join(' ')}"><td><b>${a.n.replace(/ \(.*\)/,'')}</b></td><td>${pillHTML(a)}</td><td class="c-tab">${cell(a.dom.tab)}</td><td class="c-cv">${cell(a.dom.cv)}</td><td class="c-nlp">${cell(a.dom.nlp)}</td><td class="c-gen">${cell(a.dom.gen)}</td></tr>`).join('');
+$$('#matrixBody tr').forEach(tr=>tr.onclick=()=>openDemo(tr.dataset.id,true));
+let activeDom=null;
+$$('#matrix th[data-dom]').forEach(th=>th.onclick=()=>{const d=th.dataset.dom;activeDom=activeDom===d?null:d;$$('#matrix th[data-dom]').forEach(x=>x.classList.toggle('active',x.dataset.dom===activeDom));
+  const ci={tab:2,cv:3,nlp:4,gen:5}[d];$$('#matrixBody tr').forEach(tr=>{const has=!activeDom||tr.dataset.dom.split(' ').includes(activeDom);tr.classList.toggle('dim',!has);tr.querySelectorAll('.dot').forEach(x=>x.classList.remove('pop'));if(activeDom){const dd=tr.children[ci].querySelector('.dot');if(dd)dd.classList.add('pop')}})});
+
+/* ================= radar ================= */
+const AX=['Interpretability','Accuracy ceiling','Small-data friendly','Training speed','Scales to big data','Unstructured data'];
+const SC={linreg:[5,2,5,5,5,1],tree:[5,2,4,5,4,1],rf:[3,4,4,4,4,1],gbm:[2,5,3,3,4,1],svm:[3,4,5,2,2,2],kmeans:[4,2,4,5,4,1],pca:[3,2,4,5,4,2],cnn:[1,5,1,2,5,5],bert:[1,5,3,1,4,5],gpt:[1,5,2,1,5,5],gan:[1,4,1,1,3,5],diff:[1,5,1,1,4,5]};
+(function radar(){
+  const svg=$('#radar'),cx=210,cy=200,R=125,n=AX.length;const pt=(i,v)=>{const a=-Math.PI/2+i*2*Math.PI/n;return[cx+Math.cos(a)*R*v/5,cy+Math.sin(a)*R*v/5]};
+  let h='';for(let k=1;k<=5;k++)h+=`<polygon class="ring" points="${AX.map((_,i)=>pt(i,k).join(',')).join(' ')}"/>`;
+  AX.forEach((l,i)=>{const[x,y]=pt(i,5);const[lx,ly]=pt(i,6.15);h+=`<line class="axis" x1="${cx}" y1="${cy}" x2="${x}" y2="${y}"/><text x="${lx}" y="${ly+4}" text-anchor="${Math.abs(lx-cx)<10?'middle':lx>cx?'start':'end'}">${l}</text>`});
+  h+=`<polygon id="pA" fill="var(--sup)" fill-opacity=".2" stroke="var(--sup)" stroke-width="2.5"/><polygon id="pB" fill="var(--self)" fill-opacity=".2" stroke="var(--self)" stroke-width="2.5"/><g id="dots"></g>`;svg.innerHTML=h;
+  const sA=$('#selA'),sB=$('#selB');ALG.forEach(a=>{sA.add(new Option(a.n.replace(/ \(.*\)/,''),a.id));sB.add(new Option(a.n.replace(/ \(.*\)/,''),a.id))});sA.value='gbm';sB.value='linreg';
+  let va=SC.gbm.slice(),vb=SC.linreg.slice(),anim=0;
+  function draw(){const ta=SC[sA.value],tb=SC[sB.value];let go=false;va=va.map((v,i)=>{const nv=lerp(v,ta[i],.15);if(Math.abs(nv-ta[i])>.01)go=true;return nv});vb=vb.map((v,i)=>{const nv=lerp(v,tb[i],.15);if(Math.abs(nv-tb[i])>.01)go=true;return nv});
+    $('#pA').setAttribute('points',va.map((v,i)=>pt(i,v).join(',')).join(' '));$('#pB').setAttribute('points',vb.map((v,i)=>pt(i,v).join(',')).join(' '));
+    $('#dots').innerHTML=va.map((v,i)=>{const[x,y]=pt(i,v);return`<circle cx="${x}" cy="${y}" r="4" fill="var(--sup)"/>`}).join('')+vb.map((v,i)=>{const[x,y]=pt(i,v);return`<circle cx="${x}" cy="${y}" r="4" fill="var(--self)"/>`}).join('');
+    if(go&&!reduceMotion)anim=requestAnimationFrame(draw);else{va=ta.slice();vb=tb.slice()}}
+  function text(){const A=BY[sA.value],B=BY[sB.value],a=SC[A.id],b=SC[B.id];const nA=A.n.replace(/ \(.*\)/,''),nB=B.n.replace(/ \(.*\)/,'');
+    if(A.id===B.id){$('#diffs').innerHTML='Pick two different algorithms to compare.';return}
+    const wa=AX.map((x,i)=>[x,a[i]-b[i]]).filter(d=>d[1]>0).sort((p,q)=>q[1]-p[1]),wb=AX.map((x,i)=>[x,b[i]-a[i]]).filter(d=>d[1]>0).sort((p,q)=>q[1]-p[1]);
+    const li=(arr)=>arr.length?arr.map(([x,d])=>`<li>${x} <b>(+${d})</b></li>`).join(''):'<li>No clear advantage</li>';
+    $('#diffs').innerHTML=`<div><b style="color:var(--sup)">${nA}</b> wins on:<ul>${li(wa)}</ul></div><div style="margin-top:10px"><b style="color:var(--self)">${nB}</b> wins on:<ul>${li(wb)}</ul></div><div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="cbtn" onclick="openDemo('${A.id}',true)">▶ Run ${A.s}</button><button class="cbtn" onclick="openDemo('${B.id}',true)">▶ Run ${B.s}</button></div>`}
+  [sA,sB].forEach(s=>s.onchange=()=>{cancelAnimationFrame(anim);draw();text()});draw();text();
+})();
+
+/* ================= chooser ================= */
+(function wizard(){
+  const W=$('#wiz');let ans={},stepN=0;
+  const Q=[
+    {k:'goal',q:'What are you trying to do?',o:[['pred','Predict an outcome','Classify or forecast something'],['disc','Discover structure','Find groups, patterns or simplify'],['gen','Generate new content','Create text, images or synthetic data']]},
+    {k:'data',q:'What does your data look like?',o:[['table','Tables & spreadsheets','Rows of numbers and categories'],['img','Images','Photos, scans, medical imaging'],['text','Text','Documents, reviews, notes, tickets']]},
+    {k:'labels',q:'Do you have labeled examples of the outcome?',o:[['yes','Yes, labeled history','e.g. past loans marked default / repaid'],['no','No, or very few','Labels are missing or expensive']],when:a=>a.goal==='pred'},
+    {k:'explain',q:'How important is explaining each prediction?',o:[['high','Critical','Regulated decisions: credit, clinical'],['mid','Helpful','Stakeholders want to see the drivers'],['low','Accuracy first','Performance is what matters']],when:a=>a.goal==='pred'&&a.labels==='yes'&&a.data==='table'}
+  ];
+  const active=()=>Q.filter(q=>!q.when||q.when(ans));
+  function rec(a){const R=[],add=(id,why)=>R.push({id,why});
+    if(a.goal==='gen'){if(a.data==='text'){add('gpt','Generates fluent text one token at a time; instruction-tuned versions follow prompts.');add('bert','Pair with BERT-style embeddings to retrieve facts (RAG) and ground what it writes.')}
+      else if(a.data==='img'){add('diff','Current state of the art for text-to-image quality, with stable training.');add('gan','Single-pass generation; strong for super-resolution and data augmentation.');add('cnn','The convolutional backbone (U-Net) inside both generators.')}
+      else{add('gan','Tabular GANs (e.g. CTGAN) create privacy-preserving synthetic records.');add('diff','Diffusion-based tabular generators are an emerging alternative.')}}
+    else if(a.goal==='disc'){if(a.data==='table'){add('kmeans','Groups records into segments without needing labels.');add('pca','Compresses correlated columns into a few factors, before or instead of clustering.')}
+      else if(a.data==='img'){add('cnn','A pre-trained CNN turns images into rich feature vectors.');add('pca','Reduces those features to 2-D for exploring.');add('kmeans','Clusters the embedded images into groups.')}
+      else{add('bert','Turns documents into embeddings that capture meaning.');add('kmeans','Clusters the embeddings into topics.');add('pca','Projects embeddings to 2-D for exploration.')}}
+    else if(a.labels==='no'){add('kmeans','Without labels, start by discovering groups, then label a sample of each.');add('pca','Explore structure and outliers first.');if(a.data==='text')add('bert','Self-supervised pre-training means only a few labels are needed to fine-tune.');if(a.data==='img')add('cnn','Fine-tune a pre-trained CNN with a small labeled set.')}
+    else if(a.data==='img'){add('cnn','Learns visual features directly from pixels; the standard for image tasks.');add('svm','A solid classifier on top of extracted image features when data is small.');add('rf','Quick baseline on hand-crafted image features.')}
+    else if(a.data==='text'){add('bert','Fine-tuned BERT is a strong default for text classification and sentiment.');add('svm','A fast, competitive baseline on TF-IDF features.');add('gpt','Zero- or few-shot classification by prompting when labels are scarce.')}
+    else if(a.explain==='high'){add('linreg','Every coefficient is visible and easy to justify to regulators.');add('tree','Readable if-then rules that an auditor can follow.');add('gbm','If accuracy matters too, pair it with SHAP explanations.')}
+    else if(a.explain==='mid'){add('rf','Accurate and robust with little tuning, and it reports feature importance.');add('gbm','Often the most accurate on tabular data.');add('tree','Keep a shallow tree as an explainable benchmark.')}
+    else{add('gbm','Typically wins tabular benchmarks and competitions.');add('rf','A robust second opinion that is easy to tune.');add('svm','Strong when samples are few and features are many.')}
+    return R}
+  function render(){const qs=active();const bar=`<div class="wsteps">${qs.map((_,i)=>`<i class="${i<stepN?'done':''}"></i>`).join('')}</div>`;
+    if(stepN<qs.length){const q=qs[stepN];W.innerHTML=bar+`<div class="wq">${q.q}</div><div class="wopts">${q.o.map(([v,l,s])=>`<button class="wopt" data-v="${v}">${l}<small>${s}</small></button>`).join('')}</div>`+(stepN?'<div class="wnav"><button class="cbtn" id="wBack">← Back</button></div>':'');
+      W.querySelectorAll('.wopt').forEach(b=>b.onclick=()=>{ans[q.k]=b.dataset.v;stepN++;Q.forEach(x=>{if(x.when&&!x.when(ans))delete ans[x.k]});render()});const bk=$('#wBack');if(bk)bk.onclick=()=>{stepN--;render()}}
+    else{const R=rec(ans);W.innerHTML=bar+`<div class="wq">Your shortlist</div><div class="wres">${R.map((x,i)=>{const a=BY[x.id];return`<div class="wcard" style="animation-delay:${i*.08}s"><div class="rank">${i+1}</div><div class="body"><b>${a.n}</b> ${pillHTML(a)}<p>${x.why}</p></div><button class="cbtn" data-run="${a.id}">▶ Demo</button></div>`}).join('')}</div><div class="wnav"><button class="cbtn" id="wBack">← Back</button><button class="cbtn" id="wAgain">↺ Start over</button></div>`;
+      W.querySelectorAll('[data-run]').forEach(b=>b.onclick=()=>openDemo(b.dataset.run,true));$('#wBack').onclick=()=>{stepN--;render()};$('#wAgain').onclick=()=>{ans={};stepN=0;render()}}}
+  render();
+})();
+
+/* ================= cards ================= */
+$('#grid').innerHTML=ALG.map((a,i)=>`<article class="card" id="card-${a.id}" data-type="${a.type}" data-dom="${Object.keys(a.dom).join(' ')}">
+  <div class="card-top"><div><div class="num">${String(i+1).padStart(2,'0')} / 12</div><h3>${a.n}</h3><div class="fam">${a.fam}</div></div><div class="glyph" style="color:var(--${a.type})">${G[a.glyph]}</div></div>
+  <div class="chips">${pillHTML(a)}${domChips(a)}</div>
+  <div><div class="lbl">How it works</div><p>${a.how}</p></div>
+  <div><div class="lbl">Real-world use cases</div><ul>${a.uses.map(u=>`<li>${u}</li>`).join('')}</ul></div>
+  <div class="tip">${a.tip}</div>
+  <button class="cbtn run" data-run="${a.id}">▶ Run live demo</button></article>`).join('');
+$$('.card .run').forEach(b=>b.onclick=()=>openDemo(b.dataset.run,true));
+$('#filters').addEventListener('click',e=>{const b=e.target.closest('.fbtn');if(!b)return;$$('.fbtn').forEach(x=>x.classList.toggle('on',x===b));const f=b.dataset.f;
+  $$('.card').forEach(c=>c.classList.toggle('hide',!(f==='all'||c.dataset.type===f||c.dataset.dom.split(' ').includes(f))))});
+
+/* ================= reveal + theme ================= */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.08});$$('.reveal').forEach(x=>io.observe(x));
+const root=document.documentElement;try{const t=localStorage.getItem('atlas-theme');if(t)root.dataset.theme=t}catch(e){}readPal();
+$('#themeBtn').onclick=()=>{const dark=root.dataset.theme?root.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;root.dataset.theme=dark?'light':'dark';try{localStorage.setItem('atlas-theme',root.dataset.theme)}catch(e){}readPal()};
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',readPal);
+
+openDemo('linreg');
+</script>
+</body>
+</html>

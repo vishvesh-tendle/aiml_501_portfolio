@@ -1,8 +1,8 @@
-# Machine Learning Course Portfolio — Vishvesh Tendle
+# AIML-501 Model Development Portfolio — Vishvesh Tendle
 
-Portfolio of interactive artifacts created for my machine learning coursework in the M.S. in Artificial Intelligence program at Indiana Wesleyan University.
+Portfolio of interactive artifacts created for **AIML-501: Model Development** in the M.S. in Artificial Intelligence program at Indiana Wesleyan University.
 
-**Live site:** https://vishvesh-tendle.github.io/aiml-500-portfolio/
+**Live site:** https://vishvesh-tendle.github.io/aiml-501-portfolio/
 
 ## Artifacts
 

@@ -9,6 +9,7 @@ Portfolio of interactive artifacts created for **AIML-501: Model Development** i
 | # | Artifact | Description |
 |---|----------|-------------|
 | 01 | [The ML Algorithm Atlas](artifacts/ml-algorithm-atlas.html) | Interactive visual framework of 12 ML algorithms classified by learning style and application domain, with live in-browser demos |
+| 02 | [Inside a Neural Network](artifacts/neural-network-components.html) | Interactive presentation of neural network components with a live training lab |
 
 ## Structure
 
